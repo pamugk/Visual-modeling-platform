@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.canvas.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.input.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane stylesheets="@../styles/MainView.css" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="views.MainView">
+   <top>
+       <VBox BorderPane.alignment="CENTER">
+           <MenuBar>
+               <Menu mnemonicParsing="false" text="%file">
+                   <MenuItem mnemonicParsing="false" onAction="#createModel" text="%file.new">
+                       <accelerator>
+                           <KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
+                       </accelerator>
+                   </MenuItem>
+                   <MenuItem mnemonicParsing="false" onAction="#openModel" text="%file.open">
+                       <accelerator>
+                           <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
+                       </accelerator>
+                   </MenuItem>
+                   <SeparatorMenuItem mnemonicParsing="false"/>
+                   <MenuItem mnemonicParsing="false" onAction="#saveModel" text="%file.save">
+                       <accelerator>
+                           <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
+                       </accelerator>
+                   </MenuItem>
+                   <MenuItem mnemonicParsing="false" onAction="#saveModelAs" text="%file.saveAs">
+                       <accelerator>
+                           <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="DOWN"
+                                               shortcut="UP"/>
+                       </accelerator>
+                   </MenuItem>
+                   <SeparatorMenuItem mnemonicParsing="false"/>
+                   <MenuItem mnemonicParsing="false" onAction="#closeModel" text="%file.close">
+                       <accelerator>
+                           <KeyCodeCombination alt="UP" code="C" control="UP" meta="UP" shift="DOWN" shortcut="UP"/>
+                       </accelerator>
+                   </MenuItem>
+                   <MenuItem mnemonicParsing="false" onAction="#exit" text="%file.exit">
+                       <accelerator>
+                           <KeyCodeCombination alt="UP" code="E" control="UP" meta="UP" shift="DOWN" shortcut="UP"/>
+                       </accelerator>
+                   </MenuItem>
+               </Menu>
+               <Menu mnemonicParsing="false" text="%edit"/>
+               <Menu mnemonicParsing="false" text="%help">
+                   <MenuItem mnemonicParsing="false" text="%help.help">
+                       <accelerator>
+                           <KeyCodeCombination alt="UP" code="F1" control="DOWN" meta="UP" shift="UP"
+                                               shortcut="UP"/>
+                       </accelerator>
+                   </MenuItem>
+                   <MenuItem mnemonicParsing="false" text="%help.about">
+                       <accelerator>
+                           <KeyCodeCombination alt="UP" code="A" control="DOWN" meta="UP" shift="UP"
+                                               shortcut="UP"/>
+                       </accelerator>
+                   </MenuItem>
+               </Menu>
+           </MenuBar>
+       </VBox>
+   </top>
+   <left>
+      <Accordion BorderPane.alignment="CENTER" />
+   </left>
+   <bottom>
+      <HBox minHeight="20.0" BorderPane.alignment="CENTER" />
+   </bottom>
+   <center>
+       <GridPane BorderPane.alignment="CENTER">
+           <columnConstraints>
+               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"/>
+           </columnConstraints>
+           <rowConstraints>
+               <RowConstraints minHeight="10.0" vgrow="SOMETIMES"/>
+           </rowConstraints>
+           <Canvas height="400.0" width="400.0"/>
+       </GridPane>
+   </center>
+   <right>
+      <Accordion BorderPane.alignment="CENTER">
+        <panes>
+            <TitledPane animated="false" text="%properties">
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0"/>
+            </TitledPane>
+            <TitledPane animated="false" text="%layout">
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0"/>
+            </TitledPane>
+        </panes>
+      </Accordion>
+   </right>
+</BorderPane>
