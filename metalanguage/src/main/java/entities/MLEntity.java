@@ -1,29 +1,26 @@
-package relations;
+package entities;
 
 import attributes.MLAttribute;
 import constraints.MLConstraint;
 import constructs.MLConstruct;
-import lombok.*;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Builder
 @Getter
-public class MLRelation extends MLConstruct {
+public class MLEntity extends MLConstruct {
     @Setter
-    private MLRelTypes type;
-    @Setter
-    private boolean unique;
-    @Singular
+    private long maxCount;
     private List<MLAttribute> attributes;
-    @Singular
     private List<MLConstraint> constraints;
     @Setter
-    private MLMultiplicity multiplicity;
+    private boolean unique;
 
-    public MLRelation(@NonNull String name, @NonNull UUID id, @NonNull UUID prototypeId) {
+    public MLEntity(@NonNull String name, @NonNull UUID id, @NonNull UUID prototypeId) {
         super(name, id, prototypeId);
         attributes = new ArrayList<MLAttribute>();
         constraints = new ArrayList<MLConstraint>();
