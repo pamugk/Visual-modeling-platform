@@ -5,23 +5,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ru.psu</groupId>
-    <artifactId>visual-modelling-platform</artifactId>
+    <artifactId>visual-modeling-platform</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.1</version>
     <modules>
         <module>dsm-editor</module>
-        <module>dsm-platform-lib</module>
-        <module>metalanguage</module>
+        <module>metalanguage-lib</module>
         <module>model-lib</module>
+        <module>dsm-platform-lib</module>
     </modules>
-    <dependencies>
-        <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.10</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
+
 
 </project>
