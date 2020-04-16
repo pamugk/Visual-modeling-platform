@@ -1,3 +1,7 @@
 package ru.psu.relations
 
-class MLMultiplicity(var fromMult:Int, var toMult:Int)
+//Класс, описывающий описание множественность отношения в MetaLanguage 1.1
+class MLMultiplicity(
+        var fromMult:Int, //От скольких
+        var toMult:Int //К скольким
+)

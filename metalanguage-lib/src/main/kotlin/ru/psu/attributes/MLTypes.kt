@@ -1,7 +1,8 @@
 package ru.psu.attributes
 
+//Перечисление всех типов MetaLanguage 1.1
 enum class MLTypes {
-    NUMERICAL,
-    LOGICAL,
-    SYMBOLIC
+    NUMERICAL, //Числовой
+    LOGICAL, //Логический
+    SYMBOLIC //Символьный
 }

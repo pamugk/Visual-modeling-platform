@@ -6,11 +6,15 @@ import java.awt.Shape
 import java.awt.Stroke
 import java.util.*
 
-class ConstructView(val id: UUID, var associatedConstructId:UUID) {
-    var backColor:Color = Color.WHITE
-    var content:String = ""
-    var font:Font = Font.getFont(Font.SANS_SERIF)
-    val shape:Shape? = null
-    var stroke: Stroke? = null
-    var strokeColor:Color = Color.BLACK
+//Класс, соответствующий графическому представлению одной отдельно взятой конструкции
+class ConstructView(
+        val id: UUID, //Id графического представления
+        var associatedConstructId:UUID //Id конструкции, которой соответствует отображение
+) {
+    var backColor:Color = Color.WHITE //Основной цвет граф. представления
+    var content:String = "" //Текстовая подпись
+    var font:Font = Font.getFont(Font.SANS_SERIF) //Текстовая подпись
+    val shape:Shape? = null //Фигура контура графического представления
+    var stroke: Stroke? = null //Тип границ контура (сплошные / прерывистые)
+    var strokeColor:Color = Color.BLACK //Цвет контура графического представления
 }

@@ -1,14 +1,20 @@
 package ru.psu.entities
 
 import ru.psu.attributes.MLAttribute
+import ru.psu.constraints.MLConstraint
 import ru.psu.constructs.MLConstruct
 import java.util.*
 import kotlin.collections.ArrayList
 
+//Класс сущности в MetaLanguage 1.1
 class MLEntity(
-        id: UUID, name: String, prototypeId: UUID?, innerStructure: UUID?,
-        var maxCount:Long, var unique:Boolean
-): MLConstruct(id, name, prototypeId, innerStructure) {
-    val attributes:MutableList<MLAttribute> = ArrayList()
-    val constraints:MutableList<MLAttribute> = ArrayList()
+        parentId:UUID?, //Идентификатор конструкции-родителя
+        id: UUID, //Id сущности
+        name: String, //Название
+        prototypeId: UUID?, //Id прототипа (нет - сущность в метамодели, есть - экз. сущности)
+        innerStructure: UUID?, //Id графа, описывающего внутреннюю структуру
+        var maxCount:Int //Максимальное число экземпляров
+): MLConstruct(parentId, id, name, prototypeId, innerStructure) {
+    val attributes:MutableList<MLAttribute> = ArrayList() //Атрибуты сущности
+    val constraints:MutableList<MLConstraint> = ArrayList() //Ограничения на сущность
 }
