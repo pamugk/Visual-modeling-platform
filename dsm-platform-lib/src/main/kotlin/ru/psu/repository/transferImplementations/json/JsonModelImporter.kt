@@ -11,12 +11,12 @@ import java.io.IOException
 
 //Реализация импортёра моделей из формата json
 class JsonModelImporter: ModelImporter {
-    override val fileExtension: String = ".json"
+    override val fileExtension: String = "json"
     private val mapper = jacksonObjectMapper() //Преобразователь объектов в json
 
     private inline fun <reified T> doImport(filePath: String): T? {
         try {
-            return mapper.readValue(File("$filePath$fileExtension"), T::class.java)
+            return mapper.readValue(File("$filePath.$fileExtension"), T::class.java)
         }
         catch(e: IOException) {
             e.printStackTrace()

@@ -11,12 +11,12 @@ import java.io.IOException
 
 //Реализация импортёра моделей из формата json
 class XmlModelImporter: ModelImporter {
-    override val fileExtension:String = ".xml"
+    override val fileExtension:String = "xml"
     private val mapper:XmlMapper = XmlMapper() //Преобразователь моделей из XML
 
     private inline fun <reified T> doImport(filePath: String): T? { //Реализация фунции импорта
         try {
-            return mapper.readValue(File("$filePath$fileExtension"), T::class.java)
+            return mapper.readValue(File("$filePath.$fileExtension"), T::class.java)
         }
         catch(e: IOException) {
             e.printStackTrace()

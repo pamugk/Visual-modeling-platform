@@ -11,12 +11,12 @@ import java.io.IOException
 
 //Реализация экспортёра моделей в XML
 class XmlModelExporter:ModelExporter {
-    override val fileExtension:String = ".xml"
+    override val fileExtension:String = "xml"
     private val mapper:XmlMapper = XmlMapper() //Преобразователь объектов в XML
 
     private fun doExport(filePath: String, obj: Any): Boolean{
         try{
-            mapper.writeValue(File("$filePath$fileExtension"), obj)
+            mapper.writeValue(File("$filePath.$fileExtension"), obj)
             return true
         }
         catch(e: IOException) {

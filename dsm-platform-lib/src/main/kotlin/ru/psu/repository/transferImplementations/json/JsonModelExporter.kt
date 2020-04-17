@@ -11,12 +11,12 @@ import java.io.IOException
 
 //Реализация экспортёра моделей в json
 class JsonModelExporter:ModelExporter {
-    override val fileExtension: String = ".json"
+    override val fileExtension: String = "json"
     private val mapper = jacksonObjectMapper() //Преобразователь объектов в json
 
     private fun doExport(filePath: String, obj: Any): Boolean{
         try{
-            mapper.writeValue(File("$filePath$fileExtension"), obj)
+            mapper.writeValue(File("$filePath.$fileExtension"), obj)
             return true
         }
         catch(e: IOException) {

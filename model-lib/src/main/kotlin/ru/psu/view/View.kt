@@ -6,8 +6,10 @@ import kotlin.collections.HashMap
 //Класс, соответствующий графическому представлению метамодели
 class View(
         val id:UUID, //Id графического представления
+        val prototypeId:UUID?, //Id графического представления
+        val modelId:UUID, //Id связанной модели
         var name:String, //Название графического представления
-        var description:String //
+        var description:String //Описание графического представления
 ) {
     //Ассоциативная коллекция, ставящая в соответствие UUID конструкции
     //её графическое представление
