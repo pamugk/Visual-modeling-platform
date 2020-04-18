@@ -51,7 +51,7 @@ class ModelRepository(pathToRepository:String, val transferSystem: ModelTransfer
     fun listModels(): List<ModelEntry> {
         return transaction {
             Models.slice(Models.id, Models.prototypeId, Models.name, Models.description)
-                .select { Models.prototypeId neq null }
+                .select { Models.prototypeId.isNotNull() }
                 . map { ModelEntry(it[Models.prototypeId], it[Models.id], it[Models.name], it[Models.description]) }
         } .toList()
     }
@@ -59,7 +59,7 @@ class ModelRepository(pathToRepository:String, val transferSystem: ModelTransfer
     //Метод для получения метамоделей из репозитория
     fun listMetamodels(): List<ModelEntry> = transaction {
             Models.slice(Models.id, Models.prototypeId, Models.name, Models.description)
-                    .select { Models.prototypeId eq null }
+                    .select { Models.prototypeId.isNotNull() }
                     .map { ModelEntry(it[Models.prototypeId], it[Models.id], it[Models.name], it[Models.description]) }
     }
 

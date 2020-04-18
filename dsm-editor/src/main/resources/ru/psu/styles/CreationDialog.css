@@ -1,0 +1,6 @@
+.wizard-tab-pane {
+    -fx-tab-max-height: 0 ;
+}
+.wizard-tab-pane .tab-header-area {
+    visibility: hidden ;
+}

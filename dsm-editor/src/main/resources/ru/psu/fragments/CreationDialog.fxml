@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane fx:id="stepLabel" prefHeight="400.0" prefWidth="400.0" stylesheets="@../styles/CreationDialog.css" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+    <top>
+        <Label fx:id="stepTitleLabel" text="%title.type" BorderPane.alignment="CENTER">
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding></Label>
+    </top>
+   <center>
+       <TabPane fx:id="stepsPane" styleClass="wizard-tab-pane" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+           <Tab fx:id="typeTab">
+               <VBox alignment="CENTER">
+                   <RadioButton mnemonicParsing="false" onAction="#metamodelSelected" text="%create.metamodel">
+                      <toggleGroup>
+                         <ToggleGroup fx:id="creationGroup" />
+                      </toggleGroup>
+                   </RadioButton>
+                   <RadioButton mnemonicParsing="false" onAction="#modelSelected" text="%create.model" toggleGroup="$creationGroup">
+                  <VBox.margin>
+                     <Insets top="10.0" />
+                  </VBox.margin></RadioButton>
+                   <padding>
+                       <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                   </padding>
+               </VBox>
+           </Tab>
+           <Tab fx:id="prototypeTab">
+               <ScrollPane fitToWidth="true">
+                   <ListView fx:id="prototypesList" maxHeight="1.7976931348623157E308" />
+               </ScrollPane>
+           </Tab>
+           <Tab fx:id="descriptionTab">
+               <VBox>
+                   <padding>
+                       <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                   </padding>
+                   <Label text="%field.name">
+                       <VBox.margin>
+                           <Insets />
+                       </VBox.margin>
+                   </Label>
+                   <TextField fx:id="nameField" />
+                   <Label text="%field.description">
+                       <VBox.margin>
+                           <Insets top="10.0" />
+                       </VBox.margin>
+                   </Label>
+                   <TextArea fx:id="descriptionField" prefHeight="200.0" prefWidth="200.0" />
+               </VBox>
+           </Tab>
+       </TabPane>
+   </center>
+    <bottom>
+        <ButtonBar BorderPane.alignment="CENTER">
+            <buttons>
+                <Button fx:id="cancelBtn" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#cancel" text="%btn.cancel" />
+                <Button fx:id="prevBtn" disable="true" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#goPrev" text="%btn.prev" />
+                <Button fx:id="nextBtn" disable="true" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#goNext" text="%btn.next" />
+            </buttons>
+         <BorderPane.margin>
+            <Insets />
+         </BorderPane.margin>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+        </ButtonBar>
+    </bottom>
+</BorderPane>
