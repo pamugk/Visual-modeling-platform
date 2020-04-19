@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane fx:id="stepLabel" prefHeight="400.0" prefWidth="400.0" stylesheets="@../styles/CreationDialog.css" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane fx:id="stepLabel" prefHeight="400.0" stylesheets="@../styles/CreationDialog.css" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
     <top>
         <Label fx:id="stepTitleLabel" text="%title.type" BorderPane.alignment="CENTER">
          <padding>
@@ -30,9 +30,36 @@
                </VBox>
            </Tab>
            <Tab fx:id="prototypeTab">
-               <ScrollPane fitToWidth="true">
-                   <ListView fx:id="prototypesList" maxHeight="1.7976931348623157E308" />
-               </ScrollPane>
+               <HBox>
+                   <padding>
+                       <Insets left="10.0" right="10.0" />
+                   </padding>
+                   <ScrollPane fitToWidth="true" HBox.hgrow="SOMETIMES">
+                       <ListView fx:id="prototypesList" maxHeight="1.7976931348623157E308" />
+                   </ScrollPane>
+                   <VBox HBox.hgrow="SOMETIMES">
+                       <padding>
+                           <Insets left="10.0" right="10.0" />
+                       </padding>
+                       <Label text="%field.id">
+                     <VBox.margin>
+                        <Insets bottom="10.0" top="10.0" />
+                     </VBox.margin></Label>
+                       <Label fx:id="prototypeIdLabel" text="Label" />
+                       <Label text="%field.name">
+                           <VBox.margin>
+                               <Insets bottom="10.0" top="10.0" />
+                           </VBox.margin>
+                       </Label>
+                       <Label fx:id="prototypeNameLabel" text="Label" wrapText="true" />
+                       <Label text="%field.description">
+                           <VBox.margin>
+                               <Insets bottom="10.0" top="10.0" />
+                           </VBox.margin>
+                       </Label>
+                       <TextArea fx:id="prototypeDescriptionArea" editable="false" prefWidth="200.0" wrapText="true" />
+                   </VBox>
+               </HBox>
            </Tab>
            <Tab fx:id="descriptionTab">
                <VBox>

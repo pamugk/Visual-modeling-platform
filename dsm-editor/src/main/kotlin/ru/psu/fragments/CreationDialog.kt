@@ -1,5 +1,6 @@
 package ru.psu.fragments
 
+import javafx.beans.binding.Bindings
 import javafx.scene.control.*
 import javafx.scene.layout.BorderPane
 import ru.psu.controllers.MainController
@@ -18,9 +19,14 @@ class CreationDialog(): Fragment() {
     private val typeTab:Tab by fxid()
     private val prototypeTab:Tab by fxid()
     private val prototypesList:ListView<ModelEntry> by fxid()
+    private val prototypeIdLabel:Label by fxid()
+    private val prototypeNameLabel:Label by fxid()
+    private val prototypeDescriptionArea:TextArea by fxid()
     private val descriptionTab:Tab by fxid()
     val nameField:TextField by fxid()
     val descriptionField:TextArea by fxid()
+    val selectedPrototype:ModelEntry?
+        get() = prototypesList.selectedItem
 
     private val prevBtn:Button by fxid()
     private val nextBtn:Button by fxid()
@@ -30,16 +36,32 @@ class CreationDialog(): Fragment() {
 
     init {
         nameField.textProperty().addListener {
-            observable, old, new ->
+            _, _, new ->
             finishRestricted = new.isEmpty() || new.length > 100 || descriptionField.text.isEmpty()
             if (descriptionTab.isSelected())
                 nextBtn.isDisable = finishRestricted
         }
         descriptionField.textProperty().addListener {
-            observable, old, new ->
+            _, _, new ->
             finishRestricted = new.isEmpty() || nameField.text.isEmpty() || nameField.text.length > 100
             if (descriptionTab.isSelected())
                 nextBtn.isDisable = finishRestricted
+        }
+        prototypesList.prefHeightProperty().bind(Bindings.size(prototypesList.items).multiply(24))
+        prototypesList.selectionModel.selectedItemProperty().addListener {
+            _, _, new:ModelEntry? ->
+            if (new == null) {
+                prototypeIdLabel.text = ""
+                prototypeNameLabel.text = ""
+                prototypeDescriptionArea.clear()
+                nextBtn.isDisable = true
+            }
+            else {
+                prototypeIdLabel.text = new.id.toString()
+                prototypeNameLabel.text = new.name
+                prototypeDescriptionArea.text = new.description
+                nextBtn.isDisable = false
+            }
         }
     }
 
@@ -91,6 +113,10 @@ class CreationDialog(): Fragment() {
 
     private fun setPrototypeTab() {
         stepTitleLabel.text = messages["title.prototype"]
+        val selectedEntry = prototypesList.selectionModel.selectedItem
+        prototypesList.items.clear()
+        prototypesList.items.addAll(controller.listMetamodels())
+        prototypesList.selectionModel.select(selectedEntry)
         stepsPane.selectionModel.select(prototypeTab)
     }
 
