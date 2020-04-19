@@ -11,6 +11,7 @@ import java.io.File
 import java.io.IOException
 import java.sql.Connection
 import java.util.*
+import kotlin.collections.ArrayList
 
 class ModelRepository(pathToRepository:String, val transferSystem: ModelTransferSystem) {
     //Настройка репозитория - создание соответствующей директории
@@ -47,15 +48,6 @@ class ModelRepository(pathToRepository:String, val transferSystem: ModelTransfer
     fun deleteView(view:View) =
             transaction { Views.deleteWhere { Views.id eq view.id } }
 
-    //Метод для получения моделей из репозитория
-    fun listModels(): List<ModelEntry> {
-        return transaction {
-            Models.slice(Models.id, Models.prototypeId, Models.name, Models.description)
-                .select { Models.prototypeId.isNotNull() }
-                . map { ModelEntry(it[Models.prototypeId], it[Models.id], it[Models.name], it[Models.description]) }
-        } .toList()
-    }
-
     //Метод для получения метамоделей из репозитория
     fun listMetamodels(): List<ModelEntry> = transaction {
             Models.slice(Models.id, Models.prototypeId, Models.name, Models.description)
@@ -63,6 +55,16 @@ class ModelRepository(pathToRepository:String, val transferSystem: ModelTransfer
                     .map { ModelEntry(it[Models.prototypeId], it[Models.id], it[Models.name], it[Models.description]) }
     }
 
+    //Метод для получения моделей из репозитория
+    fun listModels(): List<ModelEntry> {
+        return transaction {
+            Models.slice(Models.id, Models.prototypeId, Models.name, Models.description)
+                    .select { Models.prototypeId.isNotNull() }
+                    . map { ModelEntry(it[Models.prototypeId], it[Models.id], it[Models.name], it[Models.description]) }
+        } .toList()
+    }
+
+    //Метод для получения списка графических представлений модели
     fun listViewsOfModel(model:Model):List<ViewEntry> = transaction {
             Views.slice(Views.id, Views.name, Views.description).select { Views.modelId eq model.id }
                 .map{ ViewEntry(it[Views.id], it[Views.name], it[Views.description]) }
@@ -71,10 +73,27 @@ class ModelRepository(pathToRepository:String, val transferSystem: ModelTransfer
     //Метод для получения модели/метамодели из репозитория
     fun loadModel(id: UUID):Model?{
         val result:ResultRow? = transaction {
-            Models.slice(Models.dataType, Models.data).select { Models.id eq id }.firstOrNull()
+            Models.slice(Models.data)
+                    .select { (Models.id eq id) and (Models.dataType eq transferSystem.importer.fileExtension) }
+                    .firstOrNull()
         }
-        return if (result == null || result[Models.dataType] != transferSystem.importer.fileExtension) null
-        else transferSystem.importer.deserializeFromText(result[Models.data])
+        return if (result == null) null else transferSystem.importer.deserializeFromText(result[Models.data])
+    }
+
+    //Метод для получения графических представлений модели
+    fun loadModelViews(id: UUID):List<View> =
+         Views.slice(Views.data)
+                .select { (Views.modelId eq id) and (Views.dataType eq transferSystem.importer.fileExtension) }
+                .mapNotNull { row -> transferSystem.importer.deserializeViewFromText(row[Views.data]) }
+
+    //Метод для получения графического представления модели
+    fun loadView(id: UUID):View?{
+        val result:ResultRow? = transaction {
+            Views.slice(Models.data)
+                    .select { (Views.id eq id) and (Views.dataType eq transferSystem.importer.fileExtension) }
+                    .firstOrNull()
+        }
+        return if (result == null) null else transferSystem.importer.deserializeViewFromText(result[Views.data])
     }
 
     //Метод для сохранения модели в репозитории (добавления/сохранения изменений)
@@ -115,5 +134,12 @@ class ModelRepository(pathToRepository:String, val transferSystem: ModelTransfer
                 }
         }
         return true
+    }
+
+    //Метод для сохранения всех переданных графических представлений в одной транзакции
+    fun saveViews(views:List<View>) {
+        transaction {
+            views.forEach { saveView(it) }
+        }
     }
 }

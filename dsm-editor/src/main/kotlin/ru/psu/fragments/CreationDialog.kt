@@ -25,8 +25,7 @@ class CreationDialog(): Fragment() {
     private val descriptionTab:Tab by fxid()
     val nameField:TextField by fxid()
     val descriptionField:TextArea by fxid()
-    val selectedPrototype:ModelEntry?
-        get() = prototypesList.selectedItem
+    fun getselectedPrototype():ModelEntry? = prototypesList.selectedItem
 
     private val prevBtn:Button by fxid()
     private val nextBtn:Button by fxid()
