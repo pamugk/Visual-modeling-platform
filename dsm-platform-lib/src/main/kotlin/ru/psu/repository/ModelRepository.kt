@@ -11,7 +11,6 @@ import java.io.File
 import java.io.IOException
 import java.sql.Connection
 import java.util.*
-import kotlin.collections.ArrayList
 
 class ModelRepository(pathToRepository:String, val transferSystem: ModelTransferSystem) {
     //Настройка репозитория - создание соответствующей директории
@@ -137,9 +136,11 @@ class ModelRepository(pathToRepository:String, val transferSystem: ModelTransfer
     }
 
     //Метод для сохранения всех переданных графических представлений в одной транзакции
-    fun saveViews(views:List<View>) {
-        transaction {
-            views.forEach { saveView(it) }
+    fun saveViews(views:List<View>):Boolean =
+         transaction {
+            for (view in views)
+                if (!saveView(view))
+                    return@transaction false
+            return@transaction true
         }
-    }
 }
