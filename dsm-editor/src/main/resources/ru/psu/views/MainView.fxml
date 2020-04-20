@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.canvas.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.input.*?>
 <?import javafx.scene.layout.*?>
@@ -63,31 +62,33 @@
                </Menu>
            </MenuBar>
            <ToolBar prefHeight="40.0" prefWidth="200.0">
-               <Button mnemonicParsing="false" text="Button"/>
+               <Button mnemonicParsing="false" text="Button" />
            </ToolBar>
        </VBox>
    </top>
    <left>
-      <Accordion disable="true" BorderPane.alignment="CENTER">
-         <panes>
-             <TitledPane animated="false" text="%entities">
-                 <VBox />
-             </TitledPane>
-             <TitledPane animated="false" text="%relations">
-                 <VBox />
-             </TitledPane>
-             <TitledPane animated="false" text="%ports">
-                 <VBox />
-             </TitledPane>
-         </panes>
-      </Accordion>
+       <ScrollPane BorderPane.alignment="CENTER">
+           <Accordion disable="true" maxHeight="1.7976931348623157E308">
+              <panes>
+                  <TitledPane animated="false" text="%entities">
+                      <ListView fx:id="entityList" />
+                  </TitledPane>
+                  <TitledPane animated="false" text="%relations">
+                      <ListView fx:id="relationList" />
+                  </TitledPane>
+                  <TitledPane animated="false" text="%ports">
+                      <ListView fx:id="portList" />
+                  </TitledPane>
+              </panes>
+           </Accordion>
+       </ScrollPane>
    </left>
    <bottom>
       <HBox minHeight="20.0" BorderPane.alignment="CENTER" />
    </bottom>
    <center>
        <ScrollPane>
-           <Canvas height="400.0" width="400.0" />
+           <Pane fx:id="modelPane" prefHeight="480.0" prefWidth="640.0" />
        </ScrollPane>
    </center>
    <right>
