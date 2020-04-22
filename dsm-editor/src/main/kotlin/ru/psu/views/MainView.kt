@@ -1,7 +1,7 @@
 package ru.psu.views
 
-import javafx.scene.canvas.Canvas
 import javafx.scene.control.*
+import javafx.scene.image.Image
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.Pane
 import javafx.stage.DirectoryChooser
@@ -25,6 +25,7 @@ import ru.psu.repository.transferImplementations.xml.XmlModelImporter
 import ru.psu.transformer.ModelTransformer
 import ru.psu.validator.ModelValidator
 import tornadofx.*
+import java.io.File
 
 
 class MainView : View() {
@@ -40,6 +41,7 @@ class MainView : View() {
     private val modelPane:Pane by fxid()
 
     init {
+        setStageIcon(Image(File("icons/app.png").toURI().toASCIIString()))
         title = messages["title"]
         controller.platform = DsmPlatform(
                 DslDefGenerator(),
@@ -53,6 +55,8 @@ class MainView : View() {
         entityList.cellFactory = EntityCellFactory(controller)
         relationList.cellFactory = RelationCellFactory(controller)
         portList.cellFactory = PortCellFactory(controller)
+        currentStage?.minWidth = 640.0
+        currentStage?.minHeight = 480.0
     }
 
     private fun askAboutSave():Boolean {
