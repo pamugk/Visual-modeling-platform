@@ -8,17 +8,17 @@
    <top>
         <MenuBar>
             <Menu mnemonicParsing="false" text="%file">
-                <MenuItem mnemonicParsing="false" onAction="#createModel" text="%file.new">
+                <MenuItem fx:id="createBtn" mnemonicParsing="false" onAction="#createModel" text="%file.new">
                     <accelerator>
                         <KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                     </accelerator>
                 </MenuItem>
-                <MenuItem mnemonicParsing="false" onAction="#openModel" text="%file.open">
+                <MenuItem fx:id="openBtn" mnemonicParsing="false" onAction="#openModel" text="%file.open">
                     <accelerator>
                         <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                     </accelerator>
                 </MenuItem>
-            <MenuItem mnemonicParsing="false" onAction="#import" text="%file.import">
+            <MenuItem fx:id="importBtn" mnemonicParsing="false" onAction="#import" text="%file.import">
                <accelerator>
                   <KeyCodeCombination alt="UP" code="I" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                </accelerator>
@@ -78,7 +78,7 @@
    </left>
    <center>
        <ScrollPane>
-           <Pane fx:id="modelPane" prefHeight="480.0" prefWidth="640.0" />
+           <Pane fx:id="modelPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="8192.0" prefWidth="8192.0" styleClass="workspace" />
        </ScrollPane>
    </center>
    <right>

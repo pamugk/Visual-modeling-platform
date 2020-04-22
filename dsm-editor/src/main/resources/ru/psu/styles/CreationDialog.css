@@ -4,3 +4,7 @@
 .wizard-tab-pane .tab-header-area {
     visibility: hidden ;
 }
+
+.workspace {
+    -fx-background-color: white;
+}

@@ -33,6 +33,9 @@ class MainView : View() {
 
     private val directoryChooser:DirectoryChooser = DirectoryChooser()
 
+    private val createBtn:MenuItem by fxid()
+    private val openBtn:MenuItem by fxid()
+    private val importBtn:MenuItem by fxid()
     private val saveBtn:MenuItem by fxid()
     private val exportBtn:MenuItem by fxid()
     private val closeBtn:MenuItem by fxid()
@@ -56,8 +59,29 @@ class MainView : View() {
                 )
         )
         entityList.cellFactory = ConstructCellFactory<MLEntity>(controller)
+        entityList.selectionModel.selectedItemProperty().addListener {
+            _, _, new: MLEntity? ->
+            if (new != null) {
+                relationList.selectionModel.clearSelection()
+                portList.selectionModel.clearSelection()
+            }
+        }
         relationList.cellFactory = ConstructCellFactory<MLRelation>(controller)
+        relationList.selectionModel.selectedItemProperty().addListener {
+            _, _, new: MLRelation? ->
+            if (new != null) {
+                entityList.selectionModel.clearSelection()
+                portList.selectionModel.clearSelection()
+            }
+        }
         portList.cellFactory = ConstructCellFactory<MLPort>(controller)
+        portList.selectionModel.selectedItemProperty().addListener {
+            _, _, new: MLPort? ->
+            if (new != null) {
+                entityList.selectionModel.clearSelection()
+                relationList.selectionModel.clearSelection()
+            }
+        }
         currentStage?.minWidth = 640.0
         currentStage?.minHeight = 480.0
     }
@@ -70,6 +94,7 @@ class MainView : View() {
     private fun askAboutSave():Boolean {
         val alert = Alert(Alert.AlertType.CONFIRMATION)
         alert.title = messages["save.title"]
+        alert.dialogPane.minHeight = Region.USE_PREF_SIZE;
         alert.contentText = messages["save.text"]
         val yesButton = ButtonType(messages["dialog.yes"], ButtonBar.ButtonData.YES)
         val noButton = ButtonType(messages["dialog.no"], ButtonBar.ButtonData.NO)
@@ -78,12 +103,16 @@ class MainView : View() {
         val answer = alert.showAndWait()
         if (!answer.isPresent)
             return false
-        if (answer.get() == ButtonType.YES)
+        if (answer.get().buttonData == ButtonBar.ButtonData.YES)
             controller.saveModel()
-        return answer.get() == ButtonType.CANCEL
+        return answer.get().buttonData == ButtonBar.ButtonData.CANCEL_CLOSE
     }
 
     private fun changeUiState(disableUi:Boolean) {
+        val enableUi = !disableUi
+        createBtn.isDisable = enableUi
+        openBtn.isDisable = enableUi
+        importBtn.isDisable = enableUi
         saveBtn.isDisable = disableUi
         exportBtn.isDisable = disableUi
         closeBtn.isDisable = disableUi
@@ -106,9 +135,6 @@ class MainView : View() {
     }
 
     fun createModel() {
-        if (controller.isModelPresent() && askAboutSave())
-            return
-        controller.closeModel()
         val creationDialog = CreationDialog()
         creationDialog.openModal(modality = Modality.APPLICATION_MODAL, owner = this.currentWindow,
                 block = true, resizable = false)?.showAndWait()
@@ -138,18 +164,12 @@ class MainView : View() {
     }
 
     fun import() {
-        val selectedDirectory = directoryChooser.showDialog(this.currentWindow)
-        if (selectedDirectory == null || controller.isModelPresent() && askAboutSave())
-            return
-        controller.closeModel()
+        val selectedDirectory = directoryChooser.showDialog(this.currentWindow) ?: return
         controller.import(selectedDirectory)
         changeUiState(false)
     }
 
     fun openModel() {
-        if (controller.isModelPresent() && askAboutSave())
-            return
-        controller.closeModel()
     }
 
     fun saveModel() {
