@@ -85,9 +85,9 @@
     <bottom>
         <ButtonBar BorderPane.alignment="CENTER">
             <buttons>
-                <Button fx:id="cancelBtn" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#cancel" text="%btn.cancel" />
-                <Button fx:id="prevBtn" disable="true" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#goPrev" text="%btn.prev" />
-                <Button fx:id="nextBtn" disable="true" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#goNext" text="%btn.next" />
+                <Button fx:id="cancelBtn" mnemonicParsing="false" onAction="#cancel" text="%btn.cancel" />
+                <Button fx:id="prevBtn" disable="true" mnemonicParsing="false" onAction="#goPrev" text="%btn.prev" />
+                <Button fx:id="nextBtn" disable="true" mnemonicParsing="false" onAction="#goNext" text="%btn.next" />
             </buttons>
          <BorderPane.margin>
             <Insets />

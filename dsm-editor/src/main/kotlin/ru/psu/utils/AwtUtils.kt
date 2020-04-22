@@ -21,7 +21,8 @@ fun constructShape(view:ConstructView):Shape {
     if (view.stroke == null || view.stroke !is BasicStroke)
         return shape
     val stroke = view.stroke as BasicStroke
-    stroke.dashArray.forEach { shape.strokeDashArray.add(it.toDouble()) }
+    if (stroke.dashArray != null)
+        stroke.dashArray.forEach { shape.strokeDashArray.add(it.toDouble()) }
     shape.strokeLineCap = getStrokeLineCap(stroke)
     shape.strokeLineJoin = getStrokeLineJoin(stroke)
     shape.strokeMiterLimit = stroke.miterLimit.toDouble()

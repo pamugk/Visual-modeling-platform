@@ -6,89 +6,79 @@
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="480.0" prefWidth="640.0" stylesheets="@../styles/CreationDialog.css" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
    <top>
-       <VBox BorderPane.alignment="CENTER">
-           <MenuBar>
-               <Menu mnemonicParsing="false" text="%file">
-                   <MenuItem mnemonicParsing="false" onAction="#createModel" text="%file.new">
-                       <accelerator>
-                           <KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                       </accelerator>
-                   </MenuItem>
-                   <MenuItem mnemonicParsing="false" onAction="#openModel" text="%file.open">
-                       <accelerator>
-                           <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                       </accelerator>
-                   </MenuItem>
-               <MenuItem mnemonicParsing="false" onAction="#import" text="%file.import">
-                  <accelerator>
-                     <KeyCodeCombination alt="UP" code="I" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                  </accelerator>
-               </MenuItem>
-                   <SeparatorMenuItem mnemonicParsing="false" />
-                   <MenuItem disable="true" mnemonicParsing="false" onAction="#saveModel" text="%file.save">
-                       <accelerator>
-                           <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                       </accelerator>
-                   </MenuItem>
-               <MenuItem disable="true" mnemonicParsing="false" onAction="#export" text="%file.export">
-                  <accelerator>
-                     <KeyCodeCombination alt="UP" code="E" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                  </accelerator>
-               </MenuItem>
-                   <SeparatorMenuItem mnemonicParsing="false" />
-                   <MenuItem disable="true" mnemonicParsing="false" onAction="#closeModel" text="%file.close">
-                       <accelerator>
-                           <KeyCodeCombination alt="UP" code="C" control="UP" meta="UP" shift="DOWN" shortcut="UP" />
-                       </accelerator>
-                   </MenuItem>
-                   <MenuItem mnemonicParsing="false" onAction="#exit" text="%file.exit">
-                       <accelerator>
-                           <KeyCodeCombination alt="UP" code="E" control="UP" meta="UP" shift="DOWN" shortcut="UP" />
-                       </accelerator>
-                   </MenuItem>
-               </Menu>
-               <Menu mnemonicParsing="false" text="%edit" />
-               <Menu mnemonicParsing="false" text="%help">
-                   <MenuItem mnemonicParsing="false" text="%help.help">
-                       <accelerator>
-                           <KeyCodeCombination alt="UP" code="F1" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                       </accelerator>
-                   </MenuItem>
-                   <MenuItem mnemonicParsing="false" text="%help.about">
-                       <accelerator>
-                           <KeyCodeCombination alt="UP" code="A" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                       </accelerator>
-                   </MenuItem>
-               </Menu>
-           </MenuBar>
-           <ToolBar prefHeight="40.0" prefWidth="200.0">
-               <Button mnemonicParsing="false" text="Button" />
-           </ToolBar>
-       </VBox>
+        <MenuBar>
+            <Menu mnemonicParsing="false" text="%file">
+                <MenuItem mnemonicParsing="false" onAction="#createModel" text="%file.new">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                    </accelerator>
+                </MenuItem>
+                <MenuItem mnemonicParsing="false" onAction="#openModel" text="%file.open">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                    </accelerator>
+                </MenuItem>
+            <MenuItem mnemonicParsing="false" onAction="#import" text="%file.import">
+               <accelerator>
+                  <KeyCodeCombination alt="UP" code="I" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+               </accelerator>
+            </MenuItem>
+                <SeparatorMenuItem mnemonicParsing="false" />
+                <MenuItem fx:id="saveBtn" disable="true" mnemonicParsing="false" onAction="#saveModel" text="%file.save">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                    </accelerator>
+                </MenuItem>
+            <MenuItem fx:id="exportBtn" disable="true" mnemonicParsing="false" onAction="#export" text="%file.export">
+               <accelerator>
+                  <KeyCodeCombination alt="UP" code="E" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+               </accelerator>
+            </MenuItem>
+                <SeparatorMenuItem mnemonicParsing="false" />
+                <MenuItem fx:id="closeBtn" disable="true" mnemonicParsing="false" onAction="#closeModel" text="%file.close">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP" code="C" control="UP" meta="UP" shift="DOWN" shortcut="UP" />
+                    </accelerator>
+                </MenuItem>
+                <MenuItem mnemonicParsing="false" onAction="#exit" text="%file.exit">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP" code="E" control="UP" meta="UP" shift="DOWN" shortcut="UP" />
+                    </accelerator>
+                </MenuItem>
+            </Menu>
+            <Menu mnemonicParsing="false" text="%edit" />
+            <Menu mnemonicParsing="false" text="%help">
+                <MenuItem mnemonicParsing="false" onAction="#showHelp" text="%help.title">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP" code="F1" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                    </accelerator>
+                </MenuItem>
+                <MenuItem mnemonicParsing="false" onAction="#showAbout" text="%about.title">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP" code="A" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                    </accelerator>
+                </MenuItem>
+            </Menu>
+        </MenuBar>
    </top>
    <left>
-       <ScrollPane BorderPane.alignment="CENTER">
-           <Accordion disable="true" maxHeight="1.7976931348623157E308">
-              <panes>
-                  <TitledPane animated="false" text="%entities">
-                      <ListView fx:id="entityList" />
-                  </TitledPane>
-                  <TitledPane animated="false" text="%relations">
-                      <ListView fx:id="relationList" />
-                  </TitledPane>
-                  <TitledPane animated="false" text="%ports">
-                      <ListView fx:id="portList" />
-                  </TitledPane>
-              </panes>
-           </Accordion>
-       </ScrollPane>
+       <Accordion fx:id="constructsAccordion" disable="true">
+           <panes>
+               <TitledPane animated="false" text="%entities">
+                   <ListView fx:id="entityList" />
+               </TitledPane>
+               <TitledPane animated="false" text="%relations">
+                   <ListView fx:id="relationList" />
+               </TitledPane>
+               <TitledPane animated="false" text="%ports">
+                   <ListView fx:id="portList" />
+               </TitledPane>
+           </panes>
+       </Accordion>
    </left>
-   <bottom>
-      <HBox minHeight="20.0" BorderPane.alignment="CENTER" />
-   </bottom>
    <center>
        <ScrollPane>
-           <Pane fx:id="modelPane" prefHeight="480.0" prefWidth="640.0"/>
+           <Pane fx:id="modelPane" prefHeight="480.0" prefWidth="640.0" />
        </ScrollPane>
    </center>
    <right>

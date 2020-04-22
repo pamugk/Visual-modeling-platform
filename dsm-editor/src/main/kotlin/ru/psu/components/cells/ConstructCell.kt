@@ -6,19 +6,30 @@ import javafx.scene.control.ContentDisplay
 import javafx.scene.control.Label
 import javafx.scene.control.ListCell
 import javafx.scene.layout.StackPane
+import ru.psu.constructs.MLConstruct
 import ru.psu.controllers.MainController
-import ru.psu.entities.MLEntity
-import ru.psu.utils.constructShape
-import ru.psu.utils.constructText
+import ru.psu.utils.drawConstruct
 import ru.psu.view.ConstructView
 import tornadofx.*
 import java.io.IOException
 
+class ConstructCell<T: MLConstruct>(): ListCell<T>() {
+    @FXML
+    private lateinit var viewPane: StackPane
+    @FXML
+    private lateinit var nameLabel: Label
 
-class EntityCell(private val controller: MainController) : ListCell<MLEntity>() {
-    init {
+    private lateinit var controller: MainController
+
+    constructor(controller: MainController):this() {
+        this.controller = controller
+        loadFxml()
+    }
+
+    private fun loadFxml() {
         try {
-            val loader = FXMLLoader(javaClass.getResource("EntityCell.fxml"))
+            val loader = FXMLLoader(javaClass.getResource("ConstructCell.fxml"))
+            loader.setController(this)
             loader.setRoot(this)
             loader.load<Any>()
         } catch (e: IOException) {
@@ -26,12 +37,7 @@ class EntityCell(private val controller: MainController) : ListCell<MLEntity>() 
         }
     }
 
-    @FXML
-    private lateinit var viewPane: StackPane
-    @FXML
-    private lateinit var nameLabel: Label
-
-    override fun updateItem(item: MLEntity?, empty: Boolean) {
+    override fun updateItem(item: T?, empty: Boolean) {
         super.updateItem(item, empty)
         viewPane.clear()
         nameLabel.text = ""
@@ -41,16 +47,10 @@ class EntityCell(private val controller: MainController) : ListCell<MLEntity>() 
         }
         else {
             nameLabel.text = item.name
-            val constructView:ConstructView? = controller.getPrototypeConstructView(item)
+            val constructView: ConstructView? = controller.getPrototypeConstructView(item)
             if (constructView != null)
-                drawView(constructView)
+                viewPane.drawConstruct(constructView)
             contentDisplay = ContentDisplay.GRAPHIC_ONLY
         }
-    }
-
-    private fun drawView(constructView: ConstructView) {
-        if (viewPane.shape == null)
-            return
-        viewPane.children.addAll(constructShape(constructView), constructText(constructView))
     }
 }

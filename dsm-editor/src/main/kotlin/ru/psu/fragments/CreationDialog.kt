@@ -23,9 +23,15 @@ class CreationDialog(): Fragment() {
     private val prototypeNameLabel:Label by fxid()
     private val prototypeDescriptionArea:TextArea by fxid()
     private val descriptionTab:Tab by fxid()
-    val nameField:TextField by fxid()
-    val descriptionField:TextArea by fxid()
-    fun getselectedPrototype():ModelEntry? = prototypesList.selectedItem
+    private val nameField:TextField by fxid()
+    private val descriptionField:TextArea by fxid()
+
+    val name:String
+        get() = nameField.text
+    val description:String
+        get() = descriptionField.text
+    val selectedPrototype:ModelEntry?
+        get() = prototypesList.selectedItem
 
     private val prevBtn:Button by fxid()
     private val nextBtn:Button by fxid()
@@ -36,13 +42,7 @@ class CreationDialog(): Fragment() {
     init {
         nameField.textProperty().addListener {
             _, _, new ->
-            finishRestricted = new.isEmpty() || new.length > 100 || descriptionField.text.isEmpty()
-            if (descriptionTab.isSelected())
-                nextBtn.isDisable = finishRestricted
-        }
-        descriptionField.textProperty().addListener {
-            _, _, new ->
-            finishRestricted = new.isEmpty() || nameField.text.isEmpty() || nameField.text.length > 100
+            finishRestricted = new.isEmpty() || new.length > 100
             if (descriptionTab.isSelected())
                 nextBtn.isDisable = finishRestricted
         }

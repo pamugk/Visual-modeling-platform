@@ -4,15 +4,14 @@ import javafx.scene.control.*
 import javafx.scene.image.Image
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.Pane
+import javafx.scene.layout.Region
 import javafx.stage.DirectoryChooser
 import javafx.stage.Modality
 import ru.psu.DsmPlatform
 import ru.psu.controllers.MainController
 import ru.psu.controllers.SaveOutcome
 import ru.psu.entities.MLEntity
-import ru.psu.factories.EntityCellFactory
-import ru.psu.factories.PortCellFactory
-import ru.psu.factories.RelationCellFactory
+import ru.psu.factories.ConstructCellFactory
 import ru.psu.fragments.CreationDialog
 import ru.psu.fragments.CreationOutcome
 import ru.psu.generator.DslDefGenerator
@@ -34,6 +33,10 @@ class MainView : View() {
 
     private val directoryChooser:DirectoryChooser = DirectoryChooser()
 
+    private val saveBtn:MenuItem by fxid()
+    private val exportBtn:MenuItem by fxid()
+    private val closeBtn:MenuItem by fxid()
+    private val constructsAccordion:Accordion by fxid()
     private val entityList:ListView<MLEntity> by fxid()
     private val relationList:ListView<MLRelation> by fxid()
     private val portList:ListView<MLPort> by fxid()
@@ -52,11 +55,16 @@ class MainView : View() {
                         ModelTransferSystem(XmlModelExporter(), XmlModelImporter())
                 )
         )
-        entityList.cellFactory = EntityCellFactory(controller)
-        relationList.cellFactory = RelationCellFactory(controller)
-        portList.cellFactory = PortCellFactory(controller)
+        entityList.cellFactory = ConstructCellFactory<MLEntity>(controller)
+        relationList.cellFactory = ConstructCellFactory<MLRelation>(controller)
+        portList.cellFactory = ConstructCellFactory<MLPort>(controller)
         currentStage?.minWidth = 640.0
         currentStage?.minHeight = 480.0
+    }
+
+    private fun <T> ListView<T>.clear() {
+        this.selectionModel.clearSelection()
+        this.items.clear()
     }
 
     private fun askAboutSave():Boolean {
@@ -76,16 +84,16 @@ class MainView : View() {
     }
 
     private fun changeUiState(disableUi:Boolean) {
-
+        saveBtn.isDisable = disableUi
+        exportBtn.isDisable = disableUi
+        closeBtn.isDisable = disableUi
+        constructsAccordion.isDisable = disableUi
     }
 
-    private fun clearupUi() {
-        entityList.selectionModel.clearSelection()
-        entityList.items.clear()
-        relationList.selectionModel.clearSelection()
-        relationList.items.clear()
-        portList.selectionModel.clearSelection()
-        portList.items.clear()
+    private fun clearUi() {
+        entityList.clear()
+        relationList.clear()
+        portList.clear()
         modelPane.clear()
     }
 
@@ -93,21 +101,28 @@ class MainView : View() {
         if (controller.isModelPresent() && askAboutSave())
             return
         changeUiState(true)
-        clearupUi()
+        clearUi()
         controller.closeModel()
     }
 
     fun createModel() {
         if (controller.isModelPresent() && askAboutSave())
             return
+        controller.closeModel()
         val creationDialog = CreationDialog()
         creationDialog.openModal(modality = Modality.APPLICATION_MODAL, owner = this.currentWindow,
                 block = true, resizable = false)?.showAndWait()
         when(creationDialog.outcome){
-            CreationOutcome.NOTHING -> println("NOTHING created")
-            CreationOutcome.METAMODEL -> setupMetamodelUi()
-            CreationOutcome.MODEL -> setupModelUi()
+            CreationOutcome.NOTHING -> {
+                println("NOTHING created")
+                return
+            }
+            CreationOutcome.METAMODEL -> controller.createMetamodel(creationDialog.name, creationDialog.description)
+            CreationOutcome.MODEL -> controller.createModel(creationDialog.name, creationDialog.description,
+                        creationDialog.selectedPrototype!!)
         }
+        updateAcessibleConstructs()
+        changeUiState(false)
     }
 
     fun exit() {
@@ -150,18 +165,35 @@ class MainView : View() {
         }
     }
 
-    private fun setupModelUi() {
+    fun showAbout() = showInfoDialog(Alert.AlertType.INFORMATION, messages["about.title"], messages["about.text"])
 
-    }
-
-    private fun setupMetamodelUi() {
+    fun showHelp() {
 
     }
 
     private fun showInfoDialog(type:Alert.AlertType, title:String, text:String) {
-        val alert = Alert(type)
-        alert.title = title
-        alert.contentText = text
+        val alert = Alert(type); alert.headerText = null; alert.graphic = null;
+        alert.title = title; alert.contentText = text
+        alert.dialogPane.minHeight = Region.USE_PREF_SIZE;
         alert.showAndWait()
+    }
+
+    private fun updateAcessibleConstructs() {
+        val currentGraph = controller.currentPrototypeGraph!!
+        currentGraph.entities.forEach {
+            val entityPrototype:MLEntity = controller.prototype!!.constructs[it] as MLEntity
+            if (entityPrototype.maxCount != 0)
+                entityList.items.add(entityPrototype)
+        }
+        currentGraph.relations.forEach {
+            val relationPrototype:MLRelation = controller.prototype!!.constructs[it] as MLRelation
+            if (relationPrototype.maxCount != 0)
+                relationList.items.add(relationPrototype)
+        }
+        currentGraph.ports.forEach {
+            val portPrototype:MLPort = controller.prototype!!.constructs[it] as MLPort
+            if (portPrototype.maxCount != 0)
+                portList.items.add(portPrototype)
+        }
     }
 }
