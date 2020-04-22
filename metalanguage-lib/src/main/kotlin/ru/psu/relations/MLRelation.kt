@@ -14,9 +14,10 @@ class MLRelation(
         prototypeId: UUID?, //Id прототипа
         innerStructure: UUID?, //Id графа, описывающего внутреннюю структуру
         var type:MLRelTypes, //Тип отношения
-        var maxCount:Int, //Максимальное число экземпляров
-        var multiplicity:MLMultiplicity //Множественность отношения
-): MLConstruct(parentId, id, name, prototypeId, innerStructure) {
+        maxCount:Int, //Максимальное число экземпляров
+        var multiplicity:MLMultiplicity, //Множественность отношения
+        val ports:MutableList<UUID> //Id связываемых портов
+): MLConstruct(parentId, id, name, prototypeId, innerStructure, maxCount) {
     val attributes:MutableList<MLAttribute> = ArrayList() //Атрибуты отношения
     val constraints:MutableList<MLConstraint> = ArrayList() //Ограничения на отношение
 }

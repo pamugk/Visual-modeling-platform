@@ -13,6 +13,6 @@ class Model(
         var description:String, //Описание модели
         val root:MLGraph //Корневой граф
 ) {
-    val graphs: MutableMap<UUID, MLGraph> = HashMap() //Множество графов
+    val graphs: MutableMap<UUID, MLGraph> = hashMapOf(root.id to root) //Множество графов
     val constructs: MutableMap<UUID, MLConstruct> = HashMap() //Множество конструкций
 }

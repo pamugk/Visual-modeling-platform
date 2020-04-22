@@ -13,8 +13,9 @@ class MLEntity(
         name: String, //Название
         prototypeId: UUID?, //Id прототипа (нет - сущность в метамодели, есть - экз. сущности)
         innerStructure: UUID?, //Id графа, описывающего внутреннюю структуру
-        var maxCount:Int //Максимальное число экземпляров
-): MLConstruct(parentId, id, name, prototypeId, innerStructure) {
+        maxCount:Int //Максимальное число экземпляров
+): MLConstruct(parentId, id, name, prototypeId, innerStructure, maxCount) {
+    val ports:MutableSet<UUID> = HashSet() //Порты сущности
     val attributes:MutableList<MLAttribute> = ArrayList() //Атрибуты сущности
     val constraints:MutableList<MLConstraint> = ArrayList() //Ограничения на сущность
 }

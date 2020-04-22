@@ -2,6 +2,7 @@ package ru.psu.view
 
 import java.awt.Color
 import java.awt.Font
+import java.awt.Shape
 import java.awt.Stroke
 import java.util.*
 
@@ -12,8 +13,8 @@ class ConstructView(
 ) {
     var backColor:Color = Color.WHITE //Основной цвет граф. представления
     var content:String = "" //Текстовая подпись
-    var font:Font = Font.getFont(Font.SANS_SERIF) //Текстовая подпись
-    val shape:String? = null //SVG контура графического представления
+    var font:Font? = null //Текстовая подпись
+    var shape:Shape? = null //Контур графического представления
     var stroke: Stroke? = null //Тип границ контура (сплошные / прерывистые)
     var strokeColor:Color = Color.BLACK //Цвет контура графического представления
 }

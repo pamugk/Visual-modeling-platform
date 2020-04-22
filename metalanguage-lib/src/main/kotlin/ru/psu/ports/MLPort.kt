@@ -9,5 +9,6 @@ class MLPort(
         id: UUID, //Id порта
         name: String, //Имя порта
         prototypeId: UUID?, //Id прототипа
-        var kind: MLPortKinds //Вид порта
-): MLConstruct(parentId, id, name, prototypeId, null)
+        var kind: MLPortKinds, //Вид порта
+        maxCount:Int //Максимальное число экземпляров
+): MLConstruct(parentId, id, name, prototypeId, null, maxCount)
