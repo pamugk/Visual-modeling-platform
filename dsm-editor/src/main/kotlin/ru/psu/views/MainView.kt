@@ -1,10 +1,15 @@
 package ru.psu.views
 
+import javafx.application.Platform
+import javafx.geometry.Point2D
 import javafx.scene.control.*
 import javafx.scene.image.Image
+import javafx.scene.input.MouseButton
+import javafx.scene.input.MouseEvent
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Region
+import javafx.scene.shape.Shape
 import javafx.stage.DirectoryChooser
 import javafx.stage.Modality
 import ru.psu.DsmPlatform
@@ -22,12 +27,22 @@ import ru.psu.repository.ModelTransferSystem
 import ru.psu.repository.transferImplementations.xml.XmlModelExporter
 import ru.psu.repository.transferImplementations.xml.XmlModelImporter
 import ru.psu.transformer.ModelTransformer
+import ru.psu.utils.constructShape
+import ru.psu.utils.transform
 import ru.psu.validator.ModelValidator
 import tornadofx.*
 import java.io.File
+import java.util.*
 
 
 class MainView : View() {
+    private enum class SelectedConstruct { NOTHING, ENTITY, RELATION, PORT }
+    private var listConstruct:SelectedConstruct = SelectedConstruct.NOTHING
+
+    private var paneConstruct: SelectedConstruct = SelectedConstruct.NOTHING
+    private var paneConstructId:UUID? = null
+    private var paneConstructShape:Shape? = null
+
     override val root: BorderPane by fxml()
     private val controller: MainController by inject()
 
@@ -39,12 +54,23 @@ class MainView : View() {
     private val saveBtn:MenuItem by fxid()
     private val exportBtn:MenuItem by fxid()
     private val closeBtn:MenuItem by fxid()
-    private val constructsAccordion:Accordion by fxid()
+
+    private val prototypeAccordion:Accordion by fxid()
     private val entityList:ListView<MLEntity> by fxid()
     private val relationList:ListView<MLRelation> by fxid()
     private val portList:ListView<MLPort> by fxid()
 
+    private val mainScrollPane:ScrollPane by fxid()
     private val modelPane:Pane by fxid()
+
+    private val constructAccordion:Accordion by fxid()
+    private val constructIdLabel:Label by fxid()
+    private val constructNameField:TextField by fxid()
+
+    private val constructBackColorPicker:ColorPicker by fxid()
+    private val constructContent:TextField by fxid()
+    private val constructFont:Label by fxid()
+    private val constructStrokeColorPicker:ColorPicker by fxid()
 
     init {
         setStageIcon(Image(File("icons/app.png").toURI().toASCIIString()))
@@ -62,6 +88,7 @@ class MainView : View() {
         entityList.selectionModel.selectedItemProperty().addListener {
             _, _, new: MLEntity? ->
             if (new != null) {
+                listConstruct = SelectedConstruct.ENTITY
                 relationList.selectionModel.clearSelection()
                 portList.selectionModel.clearSelection()
             }
@@ -70,6 +97,7 @@ class MainView : View() {
         relationList.selectionModel.selectedItemProperty().addListener {
             _, _, new: MLRelation? ->
             if (new != null) {
+                listConstruct = SelectedConstruct.RELATION
                 entityList.selectionModel.clearSelection()
                 portList.selectionModel.clearSelection()
             }
@@ -78,8 +106,40 @@ class MainView : View() {
         portList.selectionModel.selectedItemProperty().addListener {
             _, _, new: MLPort? ->
             if (new != null) {
+                listConstruct = SelectedConstruct.PORT
                 entityList.selectionModel.clearSelection()
                 relationList.selectionModel.clearSelection()
+            }
+        }
+        constructNameField.textProperty().addListener{
+            _, old, new ->
+            if (paneConstruct == SelectedConstruct.NOTHING) return@addListener
+            val construct = controller.currentModel?.constructs?.get(paneConstructId) ?: return@addListener
+            if (new == null || new.isEmpty())
+                constructNameField.text = old
+            else
+                construct.name = new
+        }
+        constructBackColorPicker.valueProperty().addListener {
+            _, oldColor, newColor ->
+            if (paneConstruct == SelectedConstruct.NOTHING) return@addListener
+            val view = controller.getConstructView(paneConstructId!!) ?: return@addListener
+            if (newColor == null)
+                constructBackColorPicker.value = oldColor
+            else {
+                view.backColor = newColor.transform()
+                paneConstructShape!!.fill = newColor
+            }
+        }
+        constructStrokeColorPicker.valueProperty().addListener {
+            _, oldColor, newColor ->
+            if (paneConstruct == SelectedConstruct.NOTHING) return@addListener
+            val view = controller.getConstructView(paneConstructId!!) ?: return@addListener
+            if (newColor == null)
+                constructStrokeColorPicker.value = oldColor
+            else {
+                view.strokeColor = newColor.transform()
+                paneConstructShape!!.stroke = newColor
             }
         }
         currentStage?.minWidth = 640.0
@@ -108,6 +168,29 @@ class MainView : View() {
         return answer.get().buttonData == ButtonBar.ButtonData.CANCEL_CLOSE
     }
 
+    fun canvasClicked(event:MouseEvent) {
+        if (event.button != MouseButton.PRIMARY || listConstruct != SelectedConstruct.ENTITY) {
+            selectConstruct(SelectedConstruct.NOTHING)
+            initializeConstructInfo()
+            return
+        }
+        val id: UUID = controller.addEntity(entityList.selectedItem!!, Point2D(event.x, event.y))
+        entityList.selectionModel.clearSelection()
+        listConstruct = SelectedConstruct.NOTHING
+        val shape:Shape = constructShape(controller.getConstructView(id)!!)
+        shape.setOnMouseClicked { mouseEvent: MouseEvent ->
+            if (mouseEvent.button != MouseButton.PRIMARY)
+                return@setOnMouseClicked
+            Platform.runLater {
+                selectConstruct(SelectedConstruct.NOTHING)
+                initializeConstructInfo()
+                selectConstruct(SelectedConstruct.ENTITY, id, shape)
+                initializeConstructInfo()
+            }
+        }
+        modelPane.children.add(shape)
+    }
+
     private fun changeUiState(disableUi:Boolean) {
         val enableUi = !disableUi
         createBtn.isDisable = enableUi
@@ -116,7 +199,8 @@ class MainView : View() {
         saveBtn.isDisable = disableUi
         exportBtn.isDisable = disableUi
         closeBtn.isDisable = disableUi
-        constructsAccordion.isDisable = disableUi
+        prototypeAccordion.isDisable = disableUi
+        mainScrollPane.isDisable = disableUi
     }
 
     private fun clearUi() {
@@ -124,11 +208,16 @@ class MainView : View() {
         relationList.clear()
         portList.clear()
         modelPane.clear()
+        mainScrollPane.hvalue = mainScrollPane.hmin
+        mainScrollPane.vvalue = mainScrollPane.vmin
+        selectConstruct(SelectedConstruct.NOTHING)
+        initializeConstructInfo()
     }
 
     fun closeModel() {
         if (controller.isModelPresent() && askAboutSave())
             return
+        listConstruct = SelectedConstruct.NOTHING
         changeUiState(true)
         clearUi()
         controller.closeModel()
@@ -169,6 +258,25 @@ class MainView : View() {
         changeUiState(false)
     }
 
+    private fun initializeConstructInfo() {
+        if (paneConstruct == SelectedConstruct.NOTHING) {
+            constructAccordion.isDisable = true
+            constructAccordion.expandedPane?.isExpanded = false
+            constructIdLabel.text = ""
+            constructNameField.text = ""
+            constructBackColorPicker.value = null
+            constructStrokeColorPicker.value = null
+            return
+        }
+        val construct = controller.currentModel!!.constructs[paneConstructId]!!
+        constructIdLabel.text = construct.id.toString()
+        constructNameField.text = construct.name
+        constructAccordion.isDisable = false
+        val view = controller.getConstructView(paneConstructId!!)
+        constructBackColorPicker.value = view!!.backColor.transform()
+        constructStrokeColorPicker.value = view.strokeColor.transform()
+    }
+
     fun openModel() {
     }
 
@@ -183,6 +291,12 @@ class MainView : View() {
             SaveOutcome.SUCCESS -> showInfoDialog(Alert.AlertType.INFORMATION,
                     messages["save.results.success.title"], messages["save.results.success.text"])
         }
+    }
+
+    private fun selectConstruct(construct: SelectedConstruct, id:UUID? = null, shape:Shape? = null) {
+        paneConstruct = construct
+        paneConstructId = id
+        paneConstructShape = shape
     }
 
     fun showAbout() = showInfoDialog(Alert.AlertType.INFORMATION, messages["about.title"], messages["about.text"])

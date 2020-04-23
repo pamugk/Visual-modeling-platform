@@ -1,7 +1,11 @@
 package ru.psu.controllers
 
+import javafx.geometry.Point2D
 import ru.psu.DsmPlatform
+import ru.psu.addConstructView
+import ru.psu.createEntity
 import ru.psu.constructs.MLConstruct
+import ru.psu.entities.MLEntity
 import ru.psu.graphs.MLGraph
 import ru.psu.model.Model
 import ru.psu.repository.entries.ModelEntry
@@ -9,6 +13,7 @@ import ru.psu.repository.entries.ViewEntry
 import ru.psu.view.ConstructView
 import ru.psu.view.View
 import tornadofx.*
+import java.awt.geom.AffineTransform
 import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
@@ -26,6 +31,9 @@ enum class SaveOutcome {
 }
 
 class MainController: Controller() {
+    private enum class Models { NOTHING, METAMDEL, MODEL}
+    private var curModel:Models = Models.NOTHING
+
     var prototype:Model? = null
         private set
     var currentPrototypeGraph: MLGraph? = null
@@ -53,7 +61,17 @@ class MainController: Controller() {
             }
     }
 
+    fun addEntity(prototype:MLEntity, point:Point2D):UUID {
+        val createdEntityId: UUID = currentModel!!.createEntity(currentGraph!!.id, prototype.name,
+                prototype = if (curModel == Models.METAMDEL) null else prototype)
+        val prototypeView:ConstructView = prototypeViews[currentView].constructViews[prototype.id]!!
+        views[currentView].addConstructView(createdEntityId, prototypeView,
+                transform = AffineTransform.getTranslateInstance(point.x, point.y))
+        return createdEntityId
+    }
+
     fun closeModel() {
+        curModel = Models.NOTHING
         prototype = null
         currentModel = null
         prototypeViews.clear()
@@ -69,6 +87,7 @@ class MainController: Controller() {
         currentModel = platform!!.createModel(null, name = name, description = description)
         currentGraph = currentModel!!.root
         views.add(platform!!.createView(currentModel!!, null, "", ""))
+        curModel = Models.METAMDEL
     }
 
     fun createModel(name:String = "Metamodel", description:String = "", reqPrototype: ModelEntry):CreationOutcome {
@@ -78,6 +97,7 @@ class MainController: Controller() {
         currentPrototypeGraph = prototype!!.root
         currentModel = platform!!.createModel(prototype!!, name = name, description = description)
         currentGraph = currentModel!!.root
+        curModel = Models.MODEL
         return CreationOutcome.SUCCESS
     }
 
@@ -90,9 +110,9 @@ class MainController: Controller() {
                 prototypeViews[currentView].constructViews[prototype.id]
             else null
 
-    fun getConstructView(construct:MLConstruct):ConstructView? =
-            if (views[currentView].constructViews.containsKey(construct.id))
-                views[currentView].constructViews[construct.id]
+    fun getConstructView(constructId:UUID):ConstructView? =
+            if (views[currentView].constructViews.containsKey(constructId))
+                views[currentView].constructViews[constructId]
             else null
 
     fun import(source: File){

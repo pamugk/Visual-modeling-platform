@@ -45,13 +45,13 @@
                      <VBox.margin>
                         <Insets bottom="10.0" top="10.0" />
                      </VBox.margin></Label>
-                       <Label fx:id="prototypeIdLabel" text="Label" />
+                       <Label fx:id="prototypeIdLabel" />
                        <Label text="%field.name">
                            <VBox.margin>
                                <Insets bottom="10.0" top="10.0" />
                            </VBox.margin>
                        </Label>
-                       <Label fx:id="prototypeNameLabel" text="Label" wrapText="true" />
+                       <Label fx:id="prototypeNameLabel" wrapText="true" />
                        <Label text="%field.description">
                            <VBox.margin>
                                <Insets bottom="10.0" top="10.0" />

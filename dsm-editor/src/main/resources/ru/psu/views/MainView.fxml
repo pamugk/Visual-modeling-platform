@@ -62,7 +62,7 @@
         </MenuBar>
    </top>
    <left>
-       <Accordion fx:id="constructsAccordion" disable="true">
+       <Accordion fx:id="prototypeAccordion" disable="true">
            <panes>
                <TitledPane animated="false" text="%entities">
                    <ListView fx:id="entityList" />
@@ -77,18 +77,37 @@
        </Accordion>
    </left>
    <center>
-       <ScrollPane>
-           <Pane fx:id="modelPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="8192.0" prefWidth="8192.0" styleClass="workspace" />
+       <ScrollPane fx:id="mainScrollPane" disable="true">
+           <Pane fx:id="modelPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" onMouseClicked="#canvasClicked" prefHeight="8192.0" prefWidth="8192.0" styleClass="workspace" />
        </ScrollPane>
    </center>
    <right>
-      <Accordion disable="true" BorderPane.alignment="CENTER">
+      <Accordion fx:id="constructAccordion" disable="true" BorderPane.alignment="CENTER">
         <panes>
+            <TitledPane animated="false" text="%constructInfo">
+                <VBox spacing="10.0">
+                    <Label text="%constructInfo.id" />
+                    <Label fx:id="constructIdLabel" wrapText="true" />
+                    <Label text="%constructInfo.name" />
+                    <TextField fx:id="constructNameField" />
+                </VBox>
+            </TitledPane>
             <TitledPane animated="false" text="%properties">
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
             </TitledPane>
             <TitledPane animated="false" text="%layout">
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                <VBox spacing="10.0">
+                    <Label text="%constructInfo.view.backColor" />
+                    <ColorPicker fx:id="constructBackColorPicker" />
+                    <Label text="%constructInfo.view.content" />
+                    <TextField fx:id="constructContent" disable="true"/>
+                    <Label text="%constructInfo.view.font" />
+                    <Label fx:id="constructFont" disable="true"/>
+                    <Label text="%constructInfo.view.shape" />
+                    <Label text="%constructInfo.view.stroke" />
+                    <Label text="%constructInfo.view.strokeColor" />
+                    <ColorPicker fx:id="constructStrokeColorPicker" />
+                </VBox>
             </TitledPane>
         </panes>
       </Accordion>

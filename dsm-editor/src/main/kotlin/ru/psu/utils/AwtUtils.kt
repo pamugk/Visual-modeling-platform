@@ -8,7 +8,6 @@ import ru.psu.view.ConstructView
 import tornadofx.*
 import java.awt.BasicStroke
 import java.awt.BasicStroke.*
-import java.awt.GraphicsEnvironment
 import java.awt.geom.*
 
 //Функция для построения JavaFX-компонента по описанию графического представления конструкции
@@ -16,8 +15,8 @@ fun constructShape(view:ConstructView):Shape {
     if (view.shape == null)
         return Circle()
     val shape:Shape = transformShape(view.shape!!)
-    shape.fill = formColor(view.backColor)
-    shape.stroke = formColor(view.strokeColor)
+    shape.fill = view.backColor.transform()
+    shape.stroke = view.strokeColor.transform()
     if (view.stroke == null || view.stroke !is BasicStroke)
         return shape
     val stroke = view.stroke as BasicStroke
@@ -48,7 +47,11 @@ fun Path.cubiccurveTo(controlX1:Double, controlY1:Double,
 }
 
 //Функция для преобразования цвета из AWT в цвет из JavaFX
-fun formColor(color:java.awt.Color):Color = Color.rgb(color.red, color.green, color.blue, color.alpha / 255.0)
+fun java.awt.Color.transform():Color = Color.rgb(this.red, this.green, this.blue, this.alpha / 255.0)
+
+//Функция для преобразования цвета из JavaFX в цвет из AWT
+fun Color.transform():java.awt.Color =
+        java.awt.Color(this.red.toFloat(), this.green.toFloat(), this.blue.toFloat(), this.opacity.toFloat())
 
 //Функция для определения стиля конца штриха в терминах JavaFX по описанию AWT
 fun getStrokeLineCap(stroke:BasicStroke):StrokeLineCap =
