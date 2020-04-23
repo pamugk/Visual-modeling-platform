@@ -1,9 +1,9 @@
 package ru.psu.view
 
-import java.awt.Color
-import java.awt.Font
-import java.awt.Shape
-import java.awt.Stroke
+import ru.psu.view.auxiliaries.ColorDto
+import ru.psu.view.auxiliaries.FontDto
+import ru.psu.view.auxiliaries.shapes.ShapeDto
+import ru.psu.view.auxiliaries.shapes.StrokeDto
 import java.util.*
 
 //Класс, соответствующий графическому представлению одной отдельно взятой конструкции
@@ -11,10 +11,10 @@ class ConstructView(
         val id: UUID, //Id графического представления
         var associatedConstructId:UUID //Id конструкции, которой соответствует отображение
 ) {
-    var backColor:Color = Color.WHITE //Основной цвет граф. представления
+    var backColor:ColorDto = ColorDto(1.0, 1.0, 1.0) //Основной цвет граф. представления
     var content:String = "" //Текстовая подпись
-    var font:Font? = null //Текстовая подпись
-    var shape:Shape? = null //Контур графического представления
-    var stroke: Stroke? = null //Тип границ контура (сплошные / прерывистые)
-    var strokeColor:Color = Color.BLACK //Цвет контура графического представления
+    var font: FontDto? = null //Шрифт
+    var shape: ShapeDto? = null //Контур графического представления
+    var stroke: StrokeDto? = null //Тип границ контура (сплошные / прерывистые)
+    var strokeColor:ColorDto = ColorDto(0.0, 0.0, 0.0) //Цвет контура графического представления
 }

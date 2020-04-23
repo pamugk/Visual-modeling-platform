@@ -15,11 +15,9 @@ import ru.psu.transformer.ModelTransformer
 import ru.psu.validator.ModelValidator
 import ru.psu.view.ConstructView
 import ru.psu.view.View
-import java.awt.*
-import java.awt.BasicStroke.CAP_BUTT
-import java.awt.BasicStroke.JOIN_ROUND
-import java.awt.Font.PLAIN
-import java.awt.geom.*
+import ru.psu.view.auxiliaries.ColorDto
+import ru.psu.view.auxiliaries.FontDto
+import ru.psu.view.auxiliaries.shapes.*
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -70,11 +68,11 @@ fun Model.createPort(entityId:UUID, name:String, kind:MLPortKinds, id:UUID = UUI
     return id
 }
 
-fun View.addConstructView(id:UUID = UUID.randomUUID(), constructId:UUID, shape:Shape,
-                          backColor:Color = Color.WHITE, content:String = "",
-                          font: Font = Font("Arial", PLAIN, 12),
-                          stroke: Stroke = BasicStroke(1.0F, CAP_BUTT, JOIN_ROUND),
-                          strokeColor: Color = Color.BLACK):UUID {
+fun View.addConstructView(id:UUID = UUID.randomUUID(), constructId:UUID, shape:ShapeDto,
+                          backColor: ColorDto = ColorDto(1.0, 1.0, 1.0), content:String = "",
+                          font: FontDto = FontDto("Arial", 12.0),
+                          stroke: StrokeDto = StrokeDto(1.0),
+                          strokeColor: ColorDto = ColorDto(0.0, 0.0, 0.0)):UUID {
     val constructView = ConstructView(id, constructId)
     constructView.backColor = backColor
     constructView.content = content
@@ -87,12 +85,12 @@ fun View.addConstructView(id:UUID = UUID.randomUUID(), constructId:UUID, shape:S
 }
 
 fun View.addConstructView(constructId:UUID, prototypeView:ConstructView, id:UUID = UUID.randomUUID(),
-                          transform:AffineTransform? = null):UUID {
+                          shift:PointDto):UUID {
     val constructView = ConstructView(id, constructId)
     constructView.backColor = prototypeView.backColor
     constructView.content = prototypeView.content
     constructView.font = prototypeView.font
-    constructView.shape = GeneralPath(prototypeView.shape).createTransformedShape(transform)
+    constructView.shape = prototypeView.shape!!.move(shift)
     constructView.stroke = prototypeView.stroke
     constructView.strokeColor = prototypeView.strokeColor
     this.constructViews[constructId] = constructView
@@ -131,13 +129,13 @@ class DsmPlatform(
         val defaultMetamodelView = View(defaultUUID, null, defaultUUID,
                 messages.getString("default.view.name"), messages.getString("default.view.description"))
         defaultMetamodelView.addConstructView(defaultEntityUUID, defaultEntityUUID,
-                Rectangle2D.Double(0.0, 0.0, 32.0, 32.0))
+                RectangleDto(0.0, 0.0, 32.0, 32.0))
         defaultMetamodelView.addConstructView(defaultPortUUID, defaultPortUUID,
-                Ellipse2D.Double(0.0, 0.0, 4.0, 4.0))
+                EllipseDto(0.0, 0.0, 4.0, 4.0))
         defaultMetamodelView.addConstructView(defaultAssociationUUID, defaultAssociationUUID,
-                Line2D.Double(0.0, 0.0, 32.0, 0.0))
+                LineDto(0.0, 0.0, 32.0, 0.0))
         defaultMetamodelView.addConstructView(defaultInheritanceUUID, defaultInheritanceUUID,
-                Line2D.Double(0.0, 0.0, 32.0, 0.0))
+                LineDto(0.0, 0.0, 32.0, 0.0))
         return defaultMetamodelView
     }
 }

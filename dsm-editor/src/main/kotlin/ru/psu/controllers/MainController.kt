@@ -12,8 +12,8 @@ import ru.psu.repository.entries.ModelEntry
 import ru.psu.repository.entries.ViewEntry
 import ru.psu.view.ConstructView
 import ru.psu.view.View
+import ru.psu.view.auxiliaries.shapes.PointDto
 import tornadofx.*
-import java.awt.geom.AffineTransform
 import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
@@ -65,8 +65,7 @@ class MainController: Controller() {
         val createdEntityId: UUID = currentModel!!.createEntity(currentGraph!!.id, prototype.name,
                 prototype = if (curModel == Models.METAMDEL) null else prototype)
         val prototypeView:ConstructView = prototypeViews[currentView].constructViews[prototype.id]!!
-        views[currentView].addConstructView(createdEntityId, prototypeView,
-                transform = AffineTransform.getTranslateInstance(point.x, point.y))
+        views[currentView].addConstructView(createdEntityId, prototypeView, shift = PointDto(point.x, point.y))
         return createdEntityId
     }
 
