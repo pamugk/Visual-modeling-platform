@@ -45,15 +45,15 @@ fun Model.createEntity(graphId:UUID, name: String, id:UUID = UUID.randomUUID(), 
     prototype?.attributes?.forEach {
         entity.attributes.add(MLAttribute(it.type, it.name, it.defaultValue, it.defaultValue, it.description))
     }
-    this.constructs[id] = entity
-    this.graphs[graphId]?.entities?.add(id)
-    return id
+    this.constructs[entity.id] = entity
+    this.graphs[graphId]?.entities?.add(entity.id)
+    return entity.id
 }
 
 fun Model.createInheritance(graphId:UUID, name: String, ports:List<UUID>, id:UUID = UUID.randomUUID(),
                             prototypeId: UUID? = null, maxCount:Int = -1,
                             multiplicity:MLMultiplicity = MLMultiplicity(-1, -1)):UUID {
-    val inheritanceRelation = MLRelation(defaultUUID, defaultInheritanceUUID, name, prototypeId,
+    val inheritanceRelation = MLRelation(graphId, id, name, prototypeId,
             null, MLRelTypes.ASSOCIATION, -1, multiplicity, ArrayList(ports))
     this.graphs[graphId]!!.relations.add(id)
     this.constructs[id] = inheritanceRelation
@@ -62,12 +62,12 @@ fun Model.createInheritance(graphId:UUID, name: String, ports:List<UUID>, id:UUI
 
 fun Model.createPort(entityId:UUID, name:String, kind:MLPortKinds, id:UUID = UUID.randomUUID(),
                      prototypeId: UUID? = null, maxCount:Int = 1):UUID {
-    val port = MLPort(defaultEntityUUID, defaultPortUUID,  name, prototypeId, kind, maxCount)
+    val port = MLPort(entityId, id,  name, prototypeId, kind, maxCount)
     val entity:MLEntity = this.constructs[entityId] as MLEntity
-    this.graphs[entity.parentId]!!.ports.add(id)
-    entity.ports.add(id)
-    this.constructs[id] = port
-    return id
+    entity.ports.add(port.id)
+    this.graphs[entity.parentId]!!.ports.add(port.id)
+    this.constructs[port.id] = port
+    return port.id
 }
 
 fun View.addConstructView(id:UUID = UUID.randomUUID(), constructId:UUID, shape:ShapeDto,
@@ -123,7 +123,7 @@ class DsmPlatform(
                 messages.getString("default.metalanguage.description"))
         metalanguage.createEntity(defaultUUID, messages.getString("default.entity.name"), defaultEntityUUID)
         metalanguage.createPort(defaultEntityUUID, messages.getString("default.port.name"),
-                MLPortKinds.BIDIRECTIONAL, maxCount = -1)
+                MLPortKinds.BIDIRECTIONAL, id = defaultPortUUID, maxCount = -1)
         metalanguage.createAssociation(defaultUUID, messages.getString("default.association.name"),
                 listOf(defaultPortUUID), defaultAssociationUUID)
         metalanguage.createInheritance(defaultUUID, messages.getString("default.inheritance.name"),

@@ -4,14 +4,14 @@ import ru.psu.view.auxiliaries.shapes.*
 
 fun ShapeDto.basic():ShapeDto =
         when (this) {
-            is ArcDto -> ArcDto(radiusX, radiusY, radiusX, radiusY, startAngle, length)
+            is ArcDto -> ArcDto(0.0, 0.0, radiusX, radiusY, startAngle, length)
             is CircleDto -> CircleDto(0.0, 0.0, radius)
             is CubicCurveDto -> CubicCurveDto(
                     startX , startY,
                     ctrlX1, ctrlY1,
                     ctrlX2, ctrlY2,
                     endX, endY)
-            is EllipseDto -> EllipseDto(radiusX, radiusY, radiusX, radiusY)
+            is EllipseDto -> EllipseDto(0.0, 0.0, 0.0, radiusY)
             is LineDto -> LineDto(startX, startY, endX, endY)
             is PathDto -> PathDto(windingRule, segments.map {
                 SegmentDto(it.action, when (it.action) {
