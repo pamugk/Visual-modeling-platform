@@ -1,9 +1,9 @@
 package ru.psu.fragments
 
-import javafx.beans.binding.Bindings
 import javafx.scene.control.*
 import javafx.scene.layout.BorderPane
 import ru.psu.controllers.MainController
+import ru.psu.factories.ModelEntryCellFactory
 import ru.psu.repository.entries.ModelEntry
 import tornadofx.*
 
@@ -11,7 +11,7 @@ enum class CreationOutcome {
     NOTHING, MODEL, METAMODEL
 }
 
-class CreationDialog(): Fragment() {
+class CreationDialog: Fragment() {
     override val root: BorderPane by fxml()
     private val controller: MainController by inject()
     private val stepTitleLabel: Label by fxid()
@@ -40,13 +40,14 @@ class CreationDialog(): Fragment() {
     var finishRestricted: Boolean = true
 
     init {
+        title = messages["title"]
         nameField.textProperty().addListener {
             _, _, new ->
             finishRestricted = new.isEmpty() || new.length > 100
             if (descriptionTab.isSelected())
                 nextBtn.isDisable = finishRestricted
         }
-        prototypesList.prefHeightProperty().bind(Bindings.size(prototypesList.items).multiply(24))
+        prototypesList.cellFactory = ModelEntryCellFactory()
         prototypesList.selectionModel.selectedItemProperty().addListener {
             _, _, new:ModelEntry? ->
             if (new == null) {
@@ -84,7 +85,7 @@ class CreationDialog(): Fragment() {
         when(stepsPane.selectionModel.selectedItem) {
             typeTab -> if(outcome == CreationOutcome.METAMODEL) setDescriptionTab() else setPrototypeTab()
             prototypeTab -> setDescriptionTab()
-            descriptionTab -> save()
+            descriptionTab -> this.currentStage?.close()
         }
     }
 
@@ -98,9 +99,6 @@ class CreationDialog(): Fragment() {
         nextBtn.isDisable = false
         nameField.clear()
         descriptionField.clear()
-    }
-    private fun save() {
-        this.currentStage?.close()
     }
 
     private fun setDescriptionTab() {

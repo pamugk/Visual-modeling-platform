@@ -46,7 +46,6 @@
                     </accelerator>
                 </MenuItem>
             </Menu>
-            <Menu mnemonicParsing="false" text="%edit" />
             <Menu mnemonicParsing="false" text="%help">
                 <MenuItem mnemonicParsing="false" onAction="#showHelp" text="%help.title">
                     <accelerator>
@@ -100,9 +99,9 @@
                     <Label text="%constructInfo.view.backColor" />
                     <ColorPicker fx:id="constructBackColorPicker" />
                     <Label text="%constructInfo.view.content" />
-                    <TextField fx:id="constructContent" disable="true"/>
+                    <TextField fx:id="constructContent" disable="true" />
                     <Label text="%constructInfo.view.font" />
-                    <Label fx:id="constructFont" disable="true"/>
+                    <Label fx:id="constructFont" disable="true" />
                     <Label text="%constructInfo.view.shape" />
                     <Label text="%constructInfo.view.stroke" />
                     <Label text="%constructInfo.view.strokeColor" />

@@ -50,7 +50,7 @@ class ModelRepository(pathToRepository:String, val transferSystem: ModelTransfer
     //Метод для получения метамоделей из репозитория
     fun listMetamodels(): List<ModelEntry> = transaction {
             Models.slice(Models.id, Models.prototypeId, Models.name, Models.description)
-                    .select { Models.prototypeId.isNotNull() }
+                    .select { Models.prototypeId.isNull() }
                     .map { ModelEntry(it[Models.prototypeId], it[Models.id], it[Models.name], it[Models.description]) }
     }
 
@@ -80,10 +80,11 @@ class ModelRepository(pathToRepository:String, val transferSystem: ModelTransfer
     }
 
     //Метод для получения графических представлений модели
-    fun loadModelViews(id: UUID):List<View> =
-         Views.slice(Views.data)
+    fun loadModelViews(id: UUID):List<View> = transaction {
+        Views.slice(Views.data)
                 .select { (Views.modelId eq id) and (Views.dataType eq transferSystem.importer.fileExtension) }
                 .mapNotNull { row -> transferSystem.importer.deserializeViewFromText(row[Views.data]) }
+    }
 
     //Метод для получения графического представления модели
     fun loadView(id: UUID):View?{
@@ -127,7 +128,7 @@ class ModelRepository(pathToRepository:String, val transferSystem: ModelTransfer
                     it[dataType] = transferSystem.exporter.fileExtension; it[data] = result
                 }
             else
-                Models.update({Models.id eq view.id}) {
+                Views.update({Views.id eq view.id}) {
                     it[name] = view.name; it[description] = view.description
                     it[dataType] = transferSystem.exporter.fileExtension; it[data] = result
                 }

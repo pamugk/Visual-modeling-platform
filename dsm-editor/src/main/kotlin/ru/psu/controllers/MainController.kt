@@ -5,9 +5,12 @@ import ru.psu.DsmPlatform
 import ru.psu.addConstructView
 import ru.psu.createEntity
 import ru.psu.constructs.MLConstruct
+import ru.psu.createPort
 import ru.psu.entities.MLEntity
 import ru.psu.graphs.MLGraph
 import ru.psu.model.Model
+import ru.psu.ports.MLPort
+import ru.psu.ports.MLPortKinds
 import ru.psu.repository.entries.ModelEntry
 import ru.psu.repository.entries.ViewEntry
 import ru.psu.view.ConstructView
@@ -69,12 +72,21 @@ class MainController: Controller() {
         return createdEntityId
     }
 
+    fun addPort(entityId:UUID, prototype:MLPort, point:Point2D):UUID {
+        val createdPortId: UUID = currentModel!!.createPort(entityId, prototype.name,
+                kind = MLPortKinds.BIDIRECTIONAL, prototypeId = if (curModel == Models.METAMDEL) null else prototype.id)
+        val prototypeView:ConstructView = prototypeViews[currentView].constructViews[prototype.id]!!
+        views[currentView].addConstructView(createdPortId, prototypeView, shift = PointDto(point.x, point.y))
+        return createdPortId
+    }
+
     fun closeModel() {
         curModel = Models.NOTHING
         prototype = null
         currentModel = null
         prototypeViews.clear()
         views.clear()
+        currentPrototypeGraph = null
         currentGraph = null
         currentView = 0
     }
@@ -82,9 +94,9 @@ class MainController: Controller() {
     fun createMetamodel(name:String = "Metamodel", description:String = "") {
         prototype = metalanguageModel
         prototypeViews.add(metalanguageView!!)
-        currentPrototypeGraph = prototype!!.root
+        currentPrototypeGraph = prototype!!.graphs[prototype!!.root]
         currentModel = platform!!.createModel(null, name = name, description = description)
-        currentGraph = currentModel!!.root
+        currentGraph = currentModel!!.graphs[currentModel!!.root]
         views.add(platform!!.createView(currentModel!!, null, "", ""))
         curModel = Models.METAMDEL
     }
@@ -93,25 +105,29 @@ class MainController: Controller() {
         prototype = platform!!.repository.loadModel(reqPrototype.id)
         if (prototype == null)
             return CreationOutcome.NO_PROTOTYPE
-        currentPrototypeGraph = prototype!!.root
+        currentPrototypeGraph = prototype!!.graphs[prototype!!.root]
         currentModel = platform!!.createModel(prototype!!, name = name, description = description)
-        currentGraph = currentModel!!.root
+        currentGraph = currentModel!!.graphs[currentModel!!.root]
+        prototypeViews.addAll(platform!!.repository.loadModelViews(prototype!!.id))
+        views.add(platform!!.createView(currentModel!!, prototypeViews[currentView].id, "", ""))
         curModel = Models.MODEL
         return CreationOutcome.SUCCESS
     }
 
     fun export(destination: File){
-        platform!!.repository.transferSystem.exporter.export(destination.path, currentModel!!);
+        platform!!.repository.transferSystem.exporter.export(destination.path, currentModel!!)
     }
-
-    fun getPrototypeConstructView(prototype:MLConstruct):ConstructView? =
-            if (prototypeViews[currentView].constructViews.containsKey(prototype.id))
-                prototypeViews[currentView].constructViews[prototype.id]
-            else null
 
     fun getConstructView(constructId:UUID):ConstructView? =
             if (views[currentView].constructViews.containsKey(constructId))
                 views[currentView].constructViews[constructId]
+            else null
+
+    fun getCurrentView():View = views[currentView]
+
+    fun getPrototypeConstructView(prototype:MLConstruct):ConstructView? =
+            if (prototypeViews[currentView].constructViews.containsKey(prototype.id))
+                prototypeViews[currentView].constructViews[prototype.id]
             else null
 
     fun import(source: File){
@@ -128,8 +144,17 @@ class MainController: Controller() {
 
     fun openModel(selectedModel: ModelEntry){
         currentModel = platform!!.repository.loadModel(selectedModel.id)
-        if (selectedModel.prototypeId != null)
+        views.addAll(platform!!.repository.loadModelViews(selectedModel.id))
+        currentGraph = currentModel!!.graphs[currentModel!!.root]
+        if (selectedModel.prototypeId == null){
+            prototype = metalanguageModel
+            prototypeViews.add(metalanguageView!!)
+        }
+        else {
             prototype = platform!!.repository.loadModel(selectedModel.prototypeId!!)
+            prototypeViews.addAll(platform!!.repository.loadModelViews(selectedModel.prototypeId!!))
+        }
+        currentPrototypeGraph = prototype!!.graphs[prototype!!.root]
     }
 
     fun saveModel():SaveOutcome {

@@ -13,7 +13,7 @@ import ru.psu.view.ConstructView
 import tornadofx.*
 import java.io.IOException
 
-class ConstructCell<T: MLConstruct>(): ListCell<T>() {
+class ConstructItemCell<T: MLConstruct>(): ListCell<T>() {
     @FXML
     private lateinit var viewPane: StackPane
     @FXML

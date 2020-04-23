@@ -12,6 +12,8 @@ import ru.psu.relations.MLRelTypes
 import ru.psu.relations.MLRelation
 import ru.psu.repository.ModelRepository
 import ru.psu.transformer.ModelTransformer
+import ru.psu.transformer.basic
+import ru.psu.transformer.move
 import ru.psu.validator.ModelValidator
 import ru.psu.view.ConstructView
 import ru.psu.view.View
@@ -87,12 +89,12 @@ fun View.addConstructView(id:UUID = UUID.randomUUID(), constructId:UUID, shape:S
 fun View.addConstructView(constructId:UUID, prototypeView:ConstructView, id:UUID = UUID.randomUUID(),
                           shift:PointDto):UUID {
     val constructView = ConstructView(id, constructId)
-    constructView.backColor = prototypeView.backColor
+    constructView.backColor = prototypeView.backColor.copy()
     constructView.content = prototypeView.content
-    constructView.font = prototypeView.font
-    constructView.shape = prototypeView.shape!!.move(shift)
-    constructView.stroke = prototypeView.stroke
-    constructView.strokeColor = prototypeView.strokeColor
+    constructView.font = prototypeView.font?.copy()
+    constructView.shape = prototypeView.shape!!.basic().move(shift)
+    constructView.stroke = prototypeView.stroke?.copy()
+    constructView.strokeColor = prototypeView.strokeColor.copy()
     this.constructViews[constructId] = constructView
     return id
 }
@@ -103,10 +105,14 @@ class DsmPlatform(
         var transformer:ModelTransformer,
         var repository:ModelRepository
 ) {
-    fun createModel(metamodel:Model?, id: UUID = UUID.randomUUID(), grapgId:UUID=UUID.randomUUID(),
-                    name:String = "New model", description:String = "Recently created model") =
-        Model(metamodel?.id, id, name, description,
-                MLGraph(null, grapgId, metamodel?.root?.id))
+    fun createModel(metamodel:Model?, id: UUID = UUID.randomUUID(), graphId:UUID=UUID.randomUUID(),
+                    name:String = "New model", description:String = "Recently created model"):Model {
+        val graph = MLGraph(null, graphId, metamodel?.root)
+        val model = Model(metamodel?.id, id, name, description, graphId)
+        model.graphs[graphId] = graph
+        return model
+    }
+
 
     fun createView(model: Model, prototypeId:UUID?, name: String, description: String):View =
             View(UUID.randomUUID(), prototypeId, model.id, name, description)
@@ -129,9 +135,9 @@ class DsmPlatform(
         val defaultMetamodelView = View(defaultUUID, null, defaultUUID,
                 messages.getString("default.view.name"), messages.getString("default.view.description"))
         defaultMetamodelView.addConstructView(defaultEntityUUID, defaultEntityUUID,
-                RectangleDto(0.0, 0.0, 32.0, 32.0))
+                RectangleDto(0.0, 0.0, 128.0, 128.0))
         defaultMetamodelView.addConstructView(defaultPortUUID, defaultPortUUID,
-                EllipseDto(0.0, 0.0, 4.0, 4.0))
+                EllipseDto(0.0, 0.0, 16.0, 16.0))
         defaultMetamodelView.addConstructView(defaultAssociationUUID, defaultAssociationUUID,
                 LineDto(0.0, 0.0, 32.0, 0.0))
         defaultMetamodelView.addConstructView(defaultInheritanceUUID, defaultInheritanceUUID,

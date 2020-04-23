@@ -6,6 +6,8 @@ import java.util.*
 
 class ModelTransformer {
     fun transformModel(model: Model?, dslFrom: Model?, dslTo: Model?): Model? {
-        return Model(null, UUID.randomUUID(), "", "", MLGraph(null, UUID.randomUUID(),  null))
+        val graph =  MLGraph(null, UUID.randomUUID(),  null)
+        val model = Model(null, UUID.randomUUID(), "", "", graph.id)
+        return model
     }
 }

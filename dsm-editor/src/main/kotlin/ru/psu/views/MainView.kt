@@ -16,10 +16,12 @@ import ru.psu.DsmPlatform
 import ru.psu.controllers.MainController
 import ru.psu.controllers.SaveOutcome
 import ru.psu.entities.MLEntity
-import ru.psu.factories.ConstructCellFactory
+import ru.psu.factories.ConstructItemCellFactory
 import ru.psu.fragments.CreationDialog
 import ru.psu.fragments.CreationOutcome
+import ru.psu.fragments.OpenDialog
 import ru.psu.generator.DslDefGenerator
+import ru.psu.graphs.MLGraph
 import ru.psu.ports.MLPort
 import ru.psu.relations.MLRelation
 import ru.psu.repository.ModelRepository
@@ -27,13 +29,13 @@ import ru.psu.repository.ModelTransferSystem
 import ru.psu.repository.transferImplementations.xml.XmlModelExporter
 import ru.psu.repository.transferImplementations.xml.XmlModelImporter
 import ru.psu.transformer.ModelTransformer
+import ru.psu.utils.clear
 import ru.psu.utils.constructShape
 import ru.psu.utils.transform
 import ru.psu.validator.ModelValidator
 import tornadofx.*
 import java.io.File
 import java.util.*
-
 
 class MainView : View() {
     private enum class SelectedConstruct { NOTHING, ENTITY, RELATION, PORT }
@@ -84,7 +86,7 @@ class MainView : View() {
                         ModelTransferSystem(XmlModelExporter(), XmlModelImporter())
                 )
         )
-        entityList.cellFactory = ConstructCellFactory<MLEntity>(controller)
+        entityList.cellFactory = ConstructItemCellFactory<MLEntity>(controller)
         entityList.selectionModel.selectedItemProperty().addListener {
             _, _, new: MLEntity? ->
             if (new != null) {
@@ -93,7 +95,7 @@ class MainView : View() {
                 portList.selectionModel.clearSelection()
             }
         }
-        relationList.cellFactory = ConstructCellFactory<MLRelation>(controller)
+        relationList.cellFactory = ConstructItemCellFactory<MLRelation>(controller)
         relationList.selectionModel.selectedItemProperty().addListener {
             _, _, new: MLRelation? ->
             if (new != null) {
@@ -102,7 +104,7 @@ class MainView : View() {
                 portList.selectionModel.clearSelection()
             }
         }
-        portList.cellFactory = ConstructCellFactory<MLPort>(controller)
+        portList.cellFactory = ConstructItemCellFactory<MLPort>(controller)
         portList.selectionModel.selectedItemProperty().addListener {
             _, _, new: MLPort? ->
             if (new != null) {
@@ -114,11 +116,11 @@ class MainView : View() {
         constructNameField.textProperty().addListener{
             _, old, new ->
             if (paneConstruct == SelectedConstruct.NOTHING) return@addListener
-            val construct = controller.currentModel?.constructs?.get(paneConstructId) ?: return@addListener
+            val construct = controller.currentModel?.constructs?.get(paneConstructId!!)
             if (new == null || new.isEmpty())
                 constructNameField.text = old
             else
-                construct.name = new
+                construct!!.name = new
         }
         constructBackColorPicker.valueProperty().addListener {
             _, oldColor, newColor ->
@@ -146,9 +148,44 @@ class MainView : View() {
         currentStage?.minHeight = 480.0
     }
 
-    private fun <T> ListView<T>.clear() {
-        this.selectionModel.clearSelection()
-        this.items.clear()
+    private fun addEntity(id:UUID) {
+        val shape:Shape = constructShape(controller.getConstructView(id)!!)
+        shape.setOnMouseClicked { mouseEvent: MouseEvent ->
+            if (mouseEvent.button != MouseButton.PRIMARY)
+                return@setOnMouseClicked
+            Platform.runLater {
+                selectConstruct(SelectedConstruct.NOTHING)
+                initializeConstructInfo()
+                selectConstruct(SelectedConstruct.ENTITY, id, shape)
+                initializeConstructInfo()
+            }
+            if (listConstruct == SelectedConstruct.PORT) {
+                val portId: UUID = controller.addPort(id, portList.selectedItem!!, Point2D(mouseEvent.x, mouseEvent.y))
+                portList.selectionModel.clearSelection()
+                listConstruct = SelectedConstruct.NOTHING
+                addPort(portId)
+            }
+        }
+        modelPane.children.add(shape)
+    }
+
+    private fun addPort(id:UUID) {
+        val shape:Shape = constructShape(controller.getConstructView(id)!!)
+        shape.setOnMouseClicked { mouseEvent: MouseEvent ->
+            if (mouseEvent.button != MouseButton.PRIMARY)
+                return@setOnMouseClicked
+            Platform.runLater {
+                selectConstruct(SelectedConstruct.NOTHING)
+                initializeConstructInfo()
+                selectConstruct(SelectedConstruct.PORT, id, shape)
+                initializeConstructInfo()
+            }
+        }
+        modelPane.children.add(shape)
+    }
+
+    private fun addRelation(id:UUID) {
+
     }
 
     private fun askAboutSave():Boolean {
@@ -177,18 +214,8 @@ class MainView : View() {
         val id: UUID = controller.addEntity(entityList.selectedItem!!, Point2D(event.x, event.y))
         entityList.selectionModel.clearSelection()
         listConstruct = SelectedConstruct.NOTHING
-        val shape:Shape = constructShape(controller.getConstructView(id)!!)
-        shape.setOnMouseClicked { mouseEvent: MouseEvent ->
-            if (mouseEvent.button != MouseButton.PRIMARY)
-                return@setOnMouseClicked
-            Platform.runLater {
-                selectConstruct(SelectedConstruct.NOTHING)
-                initializeConstructInfo()
-                selectConstruct(SelectedConstruct.ENTITY, id, shape)
-                initializeConstructInfo()
-            }
-        }
-        modelPane.children.add(shape)
+        addEntity(id)
+
     }
 
     private fun changeUiState(disableUi:Boolean) {
@@ -208,6 +235,7 @@ class MainView : View() {
         relationList.clear()
         portList.clear()
         modelPane.clear()
+        prototypeAccordion.expandedPane?.isExpanded = false
         mainScrollPane.hvalue = mainScrollPane.hmin
         mainScrollPane.vvalue = mainScrollPane.vmin
         selectConstruct(SelectedConstruct.NOTHING)
@@ -252,9 +280,18 @@ class MainView : View() {
             controller.export(selectedDirectory)
     }
 
+    private fun fillCanvas() {
+        val currentGraph:MLGraph = controller.currentGraph!!
+        currentGraph.entities.forEach { addEntity(it) }
+        currentGraph.ports.forEach { addPort(it) }
+        currentGraph.relations.forEach { addRelation(it) }
+    }
+
     fun import() {
         val selectedDirectory = directoryChooser.showDialog(this.currentWindow) ?: return
         controller.import(selectedDirectory)
+        updateAcessibleConstructs()
+        fillCanvas()
         changeUiState(false)
     }
 
@@ -278,6 +315,15 @@ class MainView : View() {
     }
 
     fun openModel() {
+        val openDialog = OpenDialog()
+        openDialog.openModal(modality = Modality.APPLICATION_MODAL, owner = this.currentWindow,
+                block = true, resizable = false)?.showAndWait()
+        if (openDialog.canceled)
+            return
+        controller.openModel(openDialog.selectedPrototype!!)
+        updateAcessibleConstructs()
+        fillCanvas()
+        changeUiState(false)
     }
 
     fun saveModel() {

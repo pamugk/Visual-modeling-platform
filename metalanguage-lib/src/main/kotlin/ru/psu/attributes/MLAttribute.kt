@@ -1,5 +1,7 @@
 package ru.psu.attributes
 
+import java.io.Serializable
+
 //Класс атрибута в MetaLanguage 1.1
 class MLAttribute(
         var type:MLTypes,  //Тип атрибута
@@ -7,4 +9,4 @@ class MLAttribute(
         var value:String, //Значение
         var defaultValue:String, //Значение по умолчанию
         var description:String //Описание
-)
+): Serializable

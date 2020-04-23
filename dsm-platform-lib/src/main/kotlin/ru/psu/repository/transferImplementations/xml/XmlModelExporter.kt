@@ -1,8 +1,6 @@
 package ru.psu.repository.transferImplementations.xml
 
-import com.fasterxml.jackson.core.JsonGenerationException
-import com.fasterxml.jackson.databind.JsonMappingException
-import com.fasterxml.jackson.dataformat.xml.XmlMapper
+import com.thoughtworks.xstream.XStream
 import ru.psu.model.Model
 import ru.psu.repository.transferInterfaces.ModelExporter
 import ru.psu.view.View
@@ -12,38 +10,29 @@ import java.io.IOException
 //Реализация экспортёра моделей в XML
 class XmlModelExporter:ModelExporter {
     override val fileExtension:String = "xml"
-    private val mapper:XmlMapper = XmlMapper() //Преобразователь объектов в XML
+    private val mapper = XStream() //Преобразователь объектов в XML
 
     private fun doExport(filePath: String, obj: Any): Boolean{
         try{
-            mapper.writeValue(File("$filePath.$fileExtension"), obj)
+            val xml:String = doTextSerialization(obj)!!
+            val destination = File("$filePath.$fileExtension")
+            if (!destination.exists())
+                destination.createNewFile()
+            destination.writeText(xml, Charsets.UTF_8)
             return true
         }
         catch(e: IOException) {
             e.printStackTrace()
         }
-        catch(e: JsonGenerationException){
-            e.printStackTrace()
-        }
-        catch(e: JsonMappingException){
-            e.printStackTrace()
-        }
         return false
-
     }
 
     private fun doTextSerialization(obj: Any):String? {
         var textForm:String? = null
         try{
-            textForm = mapper.writeValueAsString(obj)
+            textForm = mapper.toXML(obj)
         }
         catch(e: IOException) {
-            e.printStackTrace()
-        }
-        catch(e: JsonGenerationException){
-            e.printStackTrace()
-        }
-        catch(e: JsonMappingException){
             e.printStackTrace()
         }
         return textForm
