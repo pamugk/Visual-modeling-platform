@@ -29,6 +29,7 @@ private val defaultAssociationUUID:UUID = UUID.nameUUIDFromBytes("uuid://Associa
 private val defaultInheritanceUUID:UUID = UUID.nameUUIDFromBytes("uuid://Inheritance".toByteArray(Charsets.UTF_8))
 private val defaultPortUUID:UUID = UUID.nameUUIDFromBytes("uuid://Port".toByteArray(Charsets.UTF_8))
 
+//Метод для создания ассоциативной связи
 fun Model.createAssociation(graphId:UUID, name: String, ports:List<UUID>, id:UUID = UUID.randomUUID(),
                             prototypeId: UUID? = null, maxCount:Int = -1,
                             multiplicity:MLMultiplicity = MLMultiplicity(-1, -1)):UUID {
@@ -39,6 +40,7 @@ fun Model.createAssociation(graphId:UUID, name: String, ports:List<UUID>, id:UUI
     return id
 }
 
+//Метод для создания сущности
 fun Model.createEntity(graphId:UUID, name: String, id:UUID = UUID.randomUUID(), prototype: MLEntity? = null,
                        maxCount:Int = -1):UUID {
     val entity = MLEntity(graphId, id, name, prototype?.id, null, maxCount)
@@ -50,6 +52,7 @@ fun Model.createEntity(graphId:UUID, name: String, id:UUID = UUID.randomUUID(), 
     return entity.id
 }
 
+//Метод для создания связи наследования
 fun Model.createInheritance(graphId:UUID, name: String, ports:List<UUID>, id:UUID = UUID.randomUUID(),
                             prototypeId: UUID? = null, maxCount:Int = -1,
                             multiplicity:MLMultiplicity = MLMultiplicity(-1, -1)):UUID {
@@ -60,6 +63,7 @@ fun Model.createInheritance(graphId:UUID, name: String, ports:List<UUID>, id:UUI
     return id
 }
 
+//Метод для создания порта
 fun Model.createPort(entityId:UUID, name:String, kind:MLPortKinds, id:UUID = UUID.randomUUID(),
                      prototypeId: UUID? = null, maxCount:Int = 1):UUID {
     val port = MLPort(entityId, id,  name, prototypeId, kind, maxCount)
@@ -70,6 +74,7 @@ fun Model.createPort(entityId:UUID, name:String, kind:MLPortKinds, id:UUID = UUI
     return port.id
 }
 
+//Метод для создания граф.представления конструкции
 fun View.addConstructView(id:UUID = UUID.randomUUID(), constructId:UUID, shape:ShapeDto,
                           backColor: ColorDto = ColorDto(1.0, 1.0, 1.0), content:String = "",
                           font: FontDto = FontDto("Arial", 12.0),
@@ -86,6 +91,7 @@ fun View.addConstructView(id:UUID = UUID.randomUUID(), constructId:UUID, shape:S
     return id
 }
 
+//Метод для создания граф.представления конструкции по прототипу
 fun View.addConstructView(constructId:UUID, prototypeView:ConstructView, id:UUID = UUID.randomUUID(),
                           shift:PointDto):UUID {
     val constructView = ConstructView(id, constructId)
@@ -99,12 +105,14 @@ fun View.addConstructView(constructId:UUID, prototypeView:ConstructView, id:UUID
     return id
 }
 
+//Класс DSM-платформы
 class DsmPlatform(
         var defGenerator:DslDefGenerator,
         var validator:ModelValidator,
         var transformer:ModelTransformer,
         var repository:ModelRepository
 ) {
+    //Метод создания модели
     fun createModel(metamodel:Model?, id: UUID = UUID.randomUUID(), graphId:UUID=UUID.randomUUID(),
                     name:String = "New model", description:String = "Recently created model"):Model {
         val graph = MLGraph(null, graphId, metamodel?.root)
@@ -113,10 +121,13 @@ class DsmPlatform(
         return model
     }
 
-
+    //Метод создания метамодели
     fun createView(model: Model, prototypeId:UUID?, name: String, description: String):View =
             View(UUID.randomUUID(), prototypeId, model.id, name, description)
 
+    //Метод для получения модели, описывающей метаязык
+    //Нужна сугубо для предоставления информации о том, что у сущности и порта один универсальный вид,
+    //а у связей - два
     fun getMetalanguageModel(messages:ResourceBundle):Model {
         val metalanguage:Model = createModel(null, defaultUUID, defaultUUID,
                 messages.getString("default.metalanguage.name"),
@@ -131,6 +142,8 @@ class DsmPlatform(
         return metalanguage
     }
 
+    //Функция для предоставления стандартного граф. представления конструкций в метамодели
+    //Используется как прототип при создании конструкции в метамодели
     fun getMetalanguageView(messages: ResourceBundle):View {
         val defaultMetamodelView = View(defaultUUID, null, defaultUUID,
                 messages.getString("default.view.name"), messages.getString("default.view.description"))

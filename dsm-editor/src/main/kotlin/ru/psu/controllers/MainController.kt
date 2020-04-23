@@ -33,7 +33,9 @@ enum class SaveOutcome {
     SUCCESS
 }
 
+//"Модель" в редакторе
 class MainController: Controller() {
+    //Информация о текущем состоянии "Модели"
     private enum class Models { NOTHING, METAMDEL, MODEL}
     private var curModel:Models = Models.NOTHING
 
@@ -48,9 +50,13 @@ class MainController: Controller() {
     private var currentView:Int = 0
     private val prototypeViews:MutableList<View> = ArrayList()
     private val views:MutableList<View> = ArrayList()
+    //
 
+    //Информация о метаязыке и стандартном графическом представлении
     private var metalanguageModel: Model? = null
     private var metalanguageView: View? = null
+
+    //Объект DSM-платформы
     var platform: DsmPlatform? = null
         set(value) {
             field = value
@@ -64,6 +70,8 @@ class MainController: Controller() {
             }
     }
 
+    //Метод для добавления сущности в модель
+    //point - точка, где необходимо разместить представление модели
     fun addEntity(prototype:MLEntity, point:Point2D):UUID {
         val createdEntityId: UUID = currentModel!!.createEntity(currentGraph!!.id, prototype.name,
                 prototype = if (curModel == Models.METAMDEL) null else prototype)
@@ -72,6 +80,7 @@ class MainController: Controller() {
         return createdEntityId
     }
 
+    //Метод для добавления порта
     fun addPort(entityId:UUID, prototype:MLPort, point:Point2D):UUID {
         val createdPortId: UUID = currentModel!!.createPort(entityId, prototype.name,
                 kind = MLPortKinds.BIDIRECTIONAL, prototypeId = if (curModel == Models.METAMDEL) null else prototype.id)
@@ -80,6 +89,7 @@ class MainController: Controller() {
         return createdPortId
     }
 
+    //Метод для закрытия модели (т.е. сброса состояния "Модели"
     fun closeModel() {
         curModel = Models.NOTHING
         prototype = null
@@ -91,6 +101,7 @@ class MainController: Controller() {
         currentView = 0
     }
 
+    //Метод для создания метамодели
     fun createMetamodel(name:String = "Metamodel", description:String = "") {
         prototype = metalanguageModel
         prototypeViews.add(metalanguageView!!)
@@ -101,6 +112,7 @@ class MainController: Controller() {
         curModel = Models.METAMDEL
     }
 
+    //Метод для создания модели
     fun createModel(name:String = "Metamodel", description:String = "", reqPrototype: ModelEntry):CreationOutcome {
         prototype = platform!!.repository.loadModel(reqPrototype.id)
         if (prototype == null)
@@ -114,34 +126,41 @@ class MainController: Controller() {
         return CreationOutcome.SUCCESS
     }
 
+    //TODO: метод для экспорта модели вовне системы
     fun export(destination: File){
         platform!!.repository.transferSystem.exporter.export(destination.path, currentModel!!)
     }
 
+    //Метод для получения представления конструкции
     fun getConstructView(constructId:UUID):ConstructView? =
             if (views[currentView].constructViews.containsKey(constructId))
                 views[currentView].constructViews[constructId]
             else null
 
-    fun getCurrentView():View = views[currentView]
-
+    //Метод для получения представления конструкции из прототипа
     fun getPrototypeConstructView(prototype:MLConstruct):ConstructView? =
             if (prototypeViews[currentView].constructViews.containsKey(prototype.id))
                 prototypeViews[currentView].constructViews[prototype.id]
             else null
 
+    //TODO:Метод для импорта модели
     fun import(source: File){
 
     }
 
+    //Метод для определения того, присутствует ли модель в данный момент
     fun isModelPresent():Boolean = currentModel != null
 
+    //Метод для получения списка метамоделей из репозитория
     fun listMetamodels():List<ModelEntry> = platform!!.repository.listMetamodels()
 
+    //Метод для получения списка моделей из репозитория
     fun listModels():List<ModelEntry> = platform!!.repository.listModels()
 
+    //Метод для получения списка представлений модели из репозитория
     fun listViews():List<ViewEntry> = platform!!.repository.listViewsOfModel(currentModel!!)
 
+    //Метод для открытия модели из репозитория
     fun openModel(selectedModel: ModelEntry){
         currentModel = platform!!.repository.loadModel(selectedModel.id)
         views.addAll(platform!!.repository.loadModelViews(selectedModel.id))
@@ -157,6 +176,7 @@ class MainController: Controller() {
         currentPrototypeGraph = prototype!!.graphs[prototype!!.root]
     }
 
+    //Метод для сохранения модели
     fun saveModel():SaveOutcome {
         if (currentModel == null)
             return SaveOutcome.NO_MODEL

@@ -91,7 +91,7 @@ fun Path.cubiccurveTo(controlX1:Double, controlY1:Double,
     this.elements.add(cubiccurve)
 }
 
-//Метод для преобразования формы по стандарту AWT в форму по стандарту JavaFX
+//Метод для преобразования формы в форму JavaFX
 fun ShapeDto.transform():Shape =
         when (this) {
             is ArcDto -> Arc(this.centerX, this.centerY, this.radiusX,

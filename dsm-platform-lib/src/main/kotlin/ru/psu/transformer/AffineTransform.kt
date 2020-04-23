@@ -2,42 +2,18 @@ package ru.psu.transformer
 
 import ru.psu.view.auxiliaries.shapes.*
 
+//Метод для переноса фигуры к началу координат
+//Применим только к фигурам, задаваемых одной точкой
 fun ShapeDto.basic():ShapeDto =
         when (this) {
-            is ArcDto -> ArcDto(0.0, 0.0, radiusX, radiusY, startAngle, length)
             is CircleDto -> CircleDto(0.0, 0.0, radius)
-            is CubicCurveDto -> CubicCurveDto(
-                    startX , startY,
-                    ctrlX1, ctrlY1,
-                    ctrlX2, ctrlY2,
-                    endX, endY)
-            is EllipseDto -> EllipseDto(0.0, 0.0, 0.0, radiusY)
-            is LineDto -> LineDto(startX, startY, endX, endY)
-            is PathDto -> PathDto(windingRule, segments.map {
-                SegmentDto(it.action, when (it.action) {
-                    SegmentDto.ACTIONS.MOVETO -> doubleArrayOf(it.points[0], it.points[1])
-                    SegmentDto.ACTIONS.LINETO -> doubleArrayOf(it.points[0], it.points[1])
-                    SegmentDto.ACTIONS.CUBICTO -> doubleArrayOf(
-                            it.points[0], it.points[1],
-                            it.points[2], it.points[3],
-                            it.points[4], it.points[5])
-                    SegmentDto.ACTIONS.QUADTO -> doubleArrayOf(
-                            it.points[0], it.points[1],
-                            it.points[2], it.points[3])
-                    SegmentDto.ACTIONS.CLOSE -> DoubleArray(0)
-                })
-            }.toMutableList())
-            is PolygonDto -> PolygonDto(
-                    xpoints.map { it }.toDoubleArray(),
-                    ypoints.map { it }.toDoubleArray())
-            is QuadCurveDto -> QuadCurveDto(
-                    startX, startY,
-                    ctrlX, ctrlY,
-                    endX, endY)
+            is EllipseDto -> EllipseDto(0.0, 0.0, radiusX, radiusY)
             is RectangleDto -> RectangleDto(0.0, 0.0, width, height)
-            else -> CircleDto(0.0, 0.0, 1.0)
+            else -> this
         }
 
+//Метод для переноса фигуры на некоторое смещение, задаваемое вектором shift
+//Состоит в переносе всех точек, задающих фигуру
 fun ShapeDto.move(shift: PointDto): ShapeDto =
         when (this) {
             is ArcDto -> ArcDto(centerX + shift.x, centerY + shift.y, radiusX,

@@ -37,14 +37,20 @@ import tornadofx.*
 import java.io.File
 import java.util.*
 
+//Контроллер редактора
 class MainView : View() {
     private enum class SelectedConstruct { NOTHING, ENTITY, RELATION, PORT }
-    private var listConstruct:SelectedConstruct = SelectedConstruct.NOTHING
 
+    //Вспомогательная информация о текущем состоянии редактора:
+    //тип текущей выбранной конструкции из палитры,
+    //текущиая выбранная конструкция на полотне (тип, id и соответствующее ей отображение)
+    private var listConstruct:SelectedConstruct = SelectedConstruct.NOTHING
     private var paneConstruct: SelectedConstruct = SelectedConstruct.NOTHING
     private var paneConstructId:UUID? = null
     private var paneConstructShape:Shape? = null
 
+    //Список графических элементов окна,
+    //с которыми есть необходимость взаимодействовать напрямую
     override val root: BorderPane by fxml()
     private val controller: MainController by inject()
 
@@ -73,7 +79,12 @@ class MainView : View() {
     private val constructContent:TextField by fxid()
     private val constructFont:Label by fxid()
     private val constructStrokeColorPicker:ColorPicker by fxid()
+    //
 
+    //Дополнительная инициализация:
+    //создание экземпляра  платформы,
+    //добавление обработчиков событий,
+    //дополнение определения окна (иконка, заголовок, ограничения на размеры)
     init {
         setStageIcon(Image(File("icons/app.png").toURI().toASCIIString()))
         title = messages["title"]
@@ -148,6 +159,7 @@ class MainView : View() {
         currentStage?.minHeight = 480.0
     }
 
+    //Метод для добавления отображения сущности на полотно
     private fun addEntity(id:UUID) {
         val shape:Shape = constructShape(controller.getConstructView(id)!!)
         shape.setOnMouseClicked { mouseEvent: MouseEvent ->
@@ -169,6 +181,7 @@ class MainView : View() {
         modelPane.children.add(shape)
     }
 
+    //Метод для добавления отображения порта на полотно
     private fun addPort(id:UUID) {
         val shape:Shape = constructShape(controller.getConstructView(id)!!)
         shape.setOnMouseClicked { mouseEvent: MouseEvent ->
@@ -184,10 +197,12 @@ class MainView : View() {
         modelPane.children.add(shape)
     }
 
+    //TODO: метод для отображения отношения на полотно
     private fun addRelation(id:UUID) {
 
     }
 
+    //Метод для отображения диалога касательно того, необходимо ли сохранять изменения в модели
     private fun askAboutSave():Boolean {
         val alert = Alert(Alert.AlertType.CONFIRMATION)
         alert.title = messages["save.title"]
@@ -205,6 +220,7 @@ class MainView : View() {
         return answer.get().buttonData == ButtonBar.ButtonData.CANCEL_CLOSE
     }
 
+    //Обработчик события нажатия мыши на полотно
     fun canvasClicked(event:MouseEvent) {
         if (event.button != MouseButton.PRIMARY || listConstruct != SelectedConstruct.ENTITY) {
             selectConstruct(SelectedConstruct.NOTHING)
@@ -218,6 +234,7 @@ class MainView : View() {
 
     }
 
+    //Метод для изменения активности интерфейса
     private fun changeUiState(disableUi:Boolean) {
         val enableUi = !disableUi
         createBtn.isDisable = enableUi
@@ -230,6 +247,7 @@ class MainView : View() {
         mainScrollPane.isDisable = disableUi
     }
 
+    //Метод для очистки интерфейса
     private fun clearUi() {
         entityList.clear()
         relationList.clear()
@@ -242,6 +260,7 @@ class MainView : View() {
         initializeConstructInfo()
     }
 
+    //Обработчик нажатия на кнопку "Закрыть модель"
     fun closeModel() {
         if (controller.isModelPresent() && askAboutSave())
             return
@@ -251,16 +270,22 @@ class MainView : View() {
         controller.closeModel()
     }
 
+    //Обработчик нажатия на кнопку "Создать модель"
     fun createModel() {
+        //Отображаем диалог на создание модели
         val creationDialog = CreationDialog()
         creationDialog.openModal(modality = Modality.APPLICATION_MODAL, owner = this.currentWindow,
                 block = true, resizable = false)?.showAndWait()
+        //Определяем выбор пользователя
         when(creationDialog.outcome){
+            //Ничего создавать не надо
             CreationOutcome.NOTHING -> {
                 println("NOTHING created")
                 return
             }
+            //Создаётся метамодель
             CreationOutcome.METAMODEL -> controller.createMetamodel(creationDialog.name, creationDialog.description)
+            //Создаётся модель
             CreationOutcome.MODEL -> controller.createModel(creationDialog.name, creationDialog.description,
                         creationDialog.selectedPrototype!!)
         }
@@ -268,18 +293,21 @@ class MainView : View() {
         changeUiState(false)
     }
 
+    //Обработчик нажатия на кнопку "Выход"
     fun exit() {
         if (controller.isModelPresent() && askAboutSave())
             return
         this.currentStage?.close()
     }
 
+    //Обработчик нажатия на кнопку "Экспорт"
     fun export() {
         val selectedDirectory = directoryChooser.showDialog(this.currentWindow)
         if (selectedDirectory != null)
             controller.export(selectedDirectory)
     }
 
+    //Метод для заполнения полотна представлением выбранного графа редактируемой модели
     private fun fillCanvas() {
         val currentGraph:MLGraph = controller.currentGraph!!
         currentGraph.entities.forEach { addEntity(it) }
@@ -287,6 +315,7 @@ class MainView : View() {
         currentGraph.relations.forEach { addRelation(it) }
     }
 
+    //Обработчик нажатия на клавишу "Импорт"
     fun import() {
         val selectedDirectory = directoryChooser.showDialog(this.currentWindow) ?: return
         controller.import(selectedDirectory)
@@ -295,6 +324,7 @@ class MainView : View() {
         changeUiState(false)
     }
 
+    //Метод для заполнения панели с информацией о конструкции
     private fun initializeConstructInfo() {
         if (paneConstruct == SelectedConstruct.NOTHING) {
             constructAccordion.isDisable = true
@@ -314,6 +344,7 @@ class MainView : View() {
         constructStrokeColorPicker.value = view.strokeColor.transform()
     }
 
+    //Обработчик нажатия на кнопку "Открыть"
     fun openModel() {
         val openDialog = OpenDialog()
         openDialog.openModal(modality = Modality.APPLICATION_MODAL, owner = this.currentWindow,
@@ -326,6 +357,7 @@ class MainView : View() {
         changeUiState(false)
     }
 
+    //Обработчик нажатия на кнопку "Сохранить"
     fun saveModel() {
         when (controller.saveModel()) {
             SaveOutcome.NO_MODEL -> showInfoDialog(Alert.AlertType.ERROR,
@@ -339,18 +371,22 @@ class MainView : View() {
         }
     }
 
+    //Метод для обновления информации о выбранной на полотне конструкции
     private fun selectConstruct(construct: SelectedConstruct, id:UUID? = null, shape:Shape? = null) {
         paneConstruct = construct
         paneConstructId = id
         paneConstructShape = shape
     }
 
+    //Обработчик нажатия на кнопку "О программе"
     fun showAbout() = showInfoDialog(Alert.AlertType.INFORMATION, messages["about.title"], messages["about.text"])
 
+    //TODO: обработчик нажатия на кнопку "Справка"
     fun showHelp() {
 
     }
 
+    //Вспомогательный метод для отображения информационного окна
     private fun showInfoDialog(type:Alert.AlertType, title:String, text:String) {
         val alert = Alert(type); alert.headerText = null; alert.graphic = null;
         alert.title = title; alert.contentText = text
@@ -358,6 +394,8 @@ class MainView : View() {
         alert.showAndWait()
     }
 
+    //Метод для обновления палитры конструкций
+    //В соответствии с выбранным графом
     private fun updateAcessibleConstructs() {
         val currentGraph = controller.currentPrototypeGraph!!
         currentGraph.entities.forEach {
