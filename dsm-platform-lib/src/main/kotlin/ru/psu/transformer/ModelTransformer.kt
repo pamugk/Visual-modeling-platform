@@ -5,7 +5,7 @@ import ru.psu.model.Model
 import java.util.*
 
 class ModelTransformer {
-    fun transformModel(model: Model?, dslFrom: Model?, dslTo: Model?): Model? {
+    fun transformModel(model: Model, dslFrom: Model, dslTo: Model, rules: List<TransformRule>): Model? {
         val graph =  MLGraph(null, UUID.randomUUID(),  null)
         return Model(null, UUID.randomUUID(), "", "", graph.id)
     }
