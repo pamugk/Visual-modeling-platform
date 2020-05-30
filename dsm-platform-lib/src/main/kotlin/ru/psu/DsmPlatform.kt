@@ -19,11 +19,12 @@ import ru.psu.view.ConstructView
 import ru.psu.view.View
 import ru.psu.view.auxiliaries.ColorDto
 import ru.psu.view.auxiliaries.FontDto
+import ru.psu.view.auxiliaries.StrokeDto
 import ru.psu.view.auxiliaries.shapes.*
 import java.util.*
-import kotlin.collections.ArrayList
+import kotlin.collections.HashSet
 
-private val defaultUUID:UUID = UUID.nameUUIDFromBytes("uuid://defaultUUID".toByteArray(Charsets.UTF_8));
+private val defaultUUID:UUID = UUID.nameUUIDFromBytes("uuid://defaultUUID".toByteArray(Charsets.UTF_8))
 private val defaultEntityUUID:UUID = UUID.nameUUIDFromBytes("uuid://Model".toByteArray(Charsets.UTF_8))
 private val defaultAssociationUUID:UUID = UUID.nameUUIDFromBytes("uuid://Association".toByteArray(Charsets.UTF_8))
 private val defaultInheritanceUUID:UUID = UUID.nameUUIDFromBytes("uuid://Inheritance".toByteArray(Charsets.UTF_8))
@@ -34,7 +35,7 @@ fun Model.createAssociation(graphId:UUID, name: String, ports:List<UUID>, id:UUI
                             prototypeId: UUID? = null, maxCount:Int = -1,
                             multiplicity:MLMultiplicity = MLMultiplicity(-1, -1)):UUID {
     val associationRelation = MLRelation(graphId, id, name, prototypeId, null,
-            MLRelTypes.ASSOCIATION, maxCount, multiplicity, ArrayList(ports))
+            MLRelTypes.ASSOCIATION, maxCount, multiplicity, HashSet(ports))
     this.graphs[graphId]!!.relations.add(id)
     this.constructs[id] = associationRelation
     return id
@@ -57,7 +58,7 @@ fun Model.createInheritance(graphId:UUID, name: String, ports:List<UUID>, id:UUI
                             prototypeId: UUID? = null, maxCount:Int = -1,
                             multiplicity:MLMultiplicity = MLMultiplicity(-1, -1)):UUID {
     val inheritanceRelation = MLRelation(graphId, id, name, prototypeId,
-            null, MLRelTypes.ASSOCIATION, -1, multiplicity, ArrayList(ports))
+            null, MLRelTypes.ASSOCIATION, -1, multiplicity, HashSet(ports))
     this.graphs[graphId]!!.relations.add(id)
     this.constructs[id] = inheritanceRelation
     return id
@@ -148,13 +149,13 @@ class DsmPlatform(
         val defaultMetamodelView = View(defaultUUID, null, defaultUUID,
                 messages.getString("default.view.name"), messages.getString("default.view.description"))
         defaultMetamodelView.addConstructView(defaultEntityUUID, defaultEntityUUID,
-                RectangleDto(0.0, 0.0, 128.0, 128.0))
+                RectangleDto(PointDto(0.0, 0.0), 128.0, 128.0))
         defaultMetamodelView.addConstructView(defaultPortUUID, defaultPortUUID,
-                EllipseDto(0.0, 0.0, 16.0, 16.0))
+                EllipseDto(PointDto(0.0, 0.0), PointDto(16.0, 16.0)))
         defaultMetamodelView.addConstructView(defaultAssociationUUID, defaultAssociationUUID,
-                LineDto(0.0, 0.0, 32.0, 0.0))
+                LineDto(PointDto(0.0, 0.0), PointDto(32.0, 0.0)))
         defaultMetamodelView.addConstructView(defaultInheritanceUUID, defaultInheritanceUUID,
-                LineDto(0.0, 0.0, 32.0, 0.0))
+                LineDto(PointDto(0.0, 0.0), PointDto(32.0, 0.0)))
         return defaultMetamodelView
     }
 }

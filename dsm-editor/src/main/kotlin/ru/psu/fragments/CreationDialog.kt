@@ -37,14 +37,14 @@ class CreationDialog: Fragment() {
     private val nextBtn:Button by fxid()
 
     var outcome:CreationOutcome = CreationOutcome.NOTHING
-    var finishRestricted: Boolean = true
+    private var finishRestricted: Boolean = true
 
     init {
         title = messages["title"]
         nameField.textProperty().addListener {
             _, _, new ->
             finishRestricted = new.isEmpty() || new.length > 100
-            if (descriptionTab.isSelected())
+            if (descriptionTab.isSelected)
                 nextBtn.isDisable = finishRestricted
         }
         prototypesList.cellFactory = ModelEntryCellFactory()

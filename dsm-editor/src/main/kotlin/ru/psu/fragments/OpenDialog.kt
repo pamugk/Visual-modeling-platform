@@ -2,7 +2,6 @@ package ru.psu.fragments
 
 import javafx.scene.control.*
 import javafx.scene.layout.BorderPane
-import javafx.scene.layout.VBox
 import ru.psu.controllers.MainController
 import ru.psu.factories.ModelEntryCellFactory
 import ru.psu.repository.entries.ModelEntry
@@ -55,7 +54,7 @@ class OpenDialog: Fragment() {
     }
 
     private fun updateInfo(id:String, name:String, description:String,  disable:Boolean) {
-        idLabel.text = id; nameLabel.text = name;
+        idLabel.text = id; nameLabel.text = name
         descriptionArea.clear(); descriptionArea.text = description
         doneBtn.isDisable = disable
     }

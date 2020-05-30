@@ -9,7 +9,10 @@ import javafx.scene.text.Text
 import ru.psu.view.ConstructView
 import ru.psu.view.auxiliaries.ColorDto
 import ru.psu.view.auxiliaries.FontDto
+import ru.psu.view.auxiliaries.StrokeDto
 import ru.psu.view.auxiliaries.shapes.*
+import ru.psu.view.auxiliaries.shapes.path.PathDto
+import ru.psu.view.auxiliaries.shapes.path.SegmentDto
 import tornadofx.*
 
 //Функция для построения JavaFX-компонента по описанию графического представления конструкции
@@ -57,17 +60,17 @@ fun getFontPosture(font:FontDto):FontPosture =
         }
 
 //Функция для определения стиля конца штриха в терминах JavaFX по описанию AWT
-fun getStrokeLineCap(stroke:StrokeDto):StrokeLineCap =
+fun getStrokeLineCap(stroke: StrokeDto):StrokeLineCap =
         when (stroke.cap) {
-            StrokeDto.CAP.ROUND -> StrokeLineCap.ROUND
-            StrokeDto.CAP.SQUARE -> StrokeLineCap.SQUARE
+            StrokeDto.Cap.ROUND -> StrokeLineCap.ROUND
+            StrokeDto.Cap.SQUARE -> StrokeLineCap.SQUARE
             else -> StrokeLineCap.BUTT
         }
 
-fun getStrokeLineJoin(stroke:StrokeDto):StrokeLineJoin =
+fun getStrokeLineJoin(stroke: StrokeDto):StrokeLineJoin =
         when (stroke.join) {
-            StrokeDto.JOIN.BEVEL -> StrokeLineJoin.BEVEL
-            StrokeDto.JOIN.MITER -> StrokeLineJoin.MITER
+            StrokeDto.Join.BEVEL -> StrokeLineJoin.BEVEL
+            StrokeDto.Join.MITER -> StrokeLineJoin.MITER
             else -> StrokeLineJoin.ROUND
         }
 
@@ -81,27 +84,24 @@ fun FontDto?.transform():Font =
         if (this == null) Font.getDefault()
         else Font.font(this.name, getFontWeight(this), getFontPosture(this), this.size)
 
-fun Path.cubiccurveTo(controlX1:Double, controlY1:Double,
+fun Path.cubicCurveTo(controlX1:Double, controlY1:Double,
                       controlX2:Double, controlY2:Double,
                       endX:Double, endY:Double) {
-    val cubiccurve = CubicCurveTo()
-    cubiccurve.controlX1 = controlX1; cubiccurve.controlY1 = controlY1
-    cubiccurve.controlX2 = controlX2; cubiccurve.controlY2 = controlY2
-    cubiccurve.x = endX; cubiccurve.y = endY
-    this.elements.add(cubiccurve)
+    val cubicCurve = CubicCurveTo()
+    cubicCurve.controlX1 = controlX1; cubicCurve.controlY1 = controlY1
+    cubicCurve.controlX2 = controlX2; cubicCurve.controlY2 = controlY2
+    cubicCurve.x = endX; cubicCurve.y = endY
+    this.elements.add(cubicCurve)
 }
 
 //Метод для преобразования формы в форму JavaFX
 fun ShapeDto.transform():Shape =
         when (this) {
-            is ArcDto -> Arc(this.centerX, this.centerY, this.radiusX,
-                    this.radiusY, this.startAngle, this.length)
-            is CircleDto -> Circle(this.centerX, this.centerY, this.radius)
-            is CubicCurveDto -> CubicCurve(
-                    this.startX, this.startY, this.ctrlX1, this.ctrlY1,
-                    this.ctrlX2, this.ctrlY2, this.endX, this.endY)
-            is EllipseDto -> Ellipse(this.centerX, this.centerY, this.radiusX, this.radiusY)
-            is LineDto -> Line(this.startX, this.startY, this.endX, this.endY)
+            is ArcDto -> Arc(center.x, center.y, radius.x, radius.y, startAngle, length)
+            is CircleDto -> Circle(center.x, center.y, radius)
+            is CubicCurveDto -> CubicCurve(start.x, start.y, ctrl1.x, ctrl1.y, ctrl2.x, ctrl2.y, end.x, end.y)
+            is EllipseDto -> Ellipse(center.x, center.y, radius.x, radius.y)
+            is LineDto -> Line(start.x, start.y, end.x, end.y)
             is PathDto -> {
                 val customPath = Path()
                 customPath.fillRule =
@@ -110,14 +110,14 @@ fun ShapeDto.transform():Shape =
 
                 this.segments.forEach {
                     when (it.action) {
-                        SegmentDto.ACTIONS.MOVETO -> customPath.moveTo(it.points[0], it.points[1])
-                        SegmentDto.ACTIONS.LINETO -> customPath.moveTo(it.points[0], it.points[1])
-                        SegmentDto.ACTIONS.CUBICTO ->
-                            customPath.cubiccurveTo(it.points[0], it.points[1], it.points[2], it.points[3],
-                                    it.points[4], it.points[5])
-                        SegmentDto.ACTIONS.QUADTO ->
-                            customPath.quadqurveTo(it.points[0], it.points[1], it.points[2], it.points[3])
-                        SegmentDto.ACTIONS.CLOSE ->
+                        SegmentDto.Actions.MOVE_TO -> customPath.moveTo(it.points[0].x, it.points[0].y)
+                        SegmentDto.Actions.LINE_TO -> customPath.moveTo(it.points[0].x, it.points[0].y)
+                        SegmentDto.Actions.CUBIC_TO ->
+                            customPath.cubicCurveTo(it.points[0].x, it.points[0].y, it.points[1].x, it.points[1].y,
+                                    it.points[2].x, it.points[2].y)
+                        SegmentDto.Actions.QUAD_TO ->
+                            customPath.quadqurveTo(it.points[0].x, it.points[0].y, it.points[1].x, it.points[1].y)
+                        SegmentDto.Actions.CLOSE ->
                             customPath.closepath()
                     }
                 }
@@ -125,13 +125,12 @@ fun ShapeDto.transform():Shape =
             }
             is PolygonDto -> {
                 val polygon = Polygon()
-                for (i in this.xpoints.indices)
-                    polygon.points.addAll(this.xpoints[i], this.ypoints[i])
+                for (point in points) polygon.points.addAll(point.x, point.y)
                 polygon
             }
-            is QuadCurveDto -> QuadCurve(this.startX, this.startY, this.ctrlX, this.ctrlY, this.endX, this.endY)
+            is QuadCurveDto -> QuadCurve(start.x, start.y, ctrl.x, ctrl.y, end.x, end.y)
             is RectangleDto -> {
-                val rectangle = Rectangle(this.x, this.y, this.width, this.height)
+                val rectangle = Rectangle(leftUpperCorner.x, leftUpperCorner.y, this.width, this.height)
                 rectangle.arcHeight = this.arcHeight
                 rectangle.arcWidth = this.arcWidth
                 rectangle

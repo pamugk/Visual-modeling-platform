@@ -1,7 +1,6 @@
 package ru.psu.entities
 
 import ru.psu.attributes.MLAttribute
-import ru.psu.constraints.MLConstraint
 import ru.psu.constructs.MLConstruct
 import java.util.*
 import kotlin.collections.ArrayList
@@ -17,5 +16,4 @@ class MLEntity(
 ): MLConstruct(parentId, id, name, prototypeId, innerStructure, maxCount) {
     val ports:MutableSet<UUID> = HashSet() //Порты сущности
     val attributes:MutableList<MLAttribute> = ArrayList() //Атрибуты сущности
-    val constraints:MutableList<MLConstraint> = ArrayList() //Ограничения на сущность
 }

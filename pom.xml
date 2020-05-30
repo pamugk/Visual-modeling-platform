@@ -11,7 +11,7 @@
     <modules>
         <module>dsm-editor</module>
         <module>metalanguage-lib</module>
-        <module>model-lib</module>
+        <module>graphic-view-lib</module>
         <module>dsm-platform-lib</module>
     </modules>
 

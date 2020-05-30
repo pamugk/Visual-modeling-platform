@@ -36,7 +36,7 @@ enum class SaveOutcome {
 //"Модель" в редакторе
 class MainController: Controller() {
     //Информация о текущем состоянии "Модели"
-    private enum class Models { NOTHING, METAMDEL, MODEL}
+    private enum class Models { NOTHING, METAMODEL, MODEL}
     private var curModel:Models = Models.NOTHING
 
     var prototype:Model? = null
@@ -74,7 +74,7 @@ class MainController: Controller() {
     //point - точка, где необходимо разместить представление модели
     fun addEntity(prototype:MLEntity, point:Point2D):UUID {
         val createdEntityId: UUID = currentModel!!.createEntity(currentGraph!!.id, prototype.name,
-                prototype = if (curModel == Models.METAMDEL) null else prototype)
+                prototype = if (curModel == Models.METAMODEL) null else prototype)
         val prototypeView:ConstructView = prototypeViews[currentView].constructViews[prototype.id]!!
         views[currentView].addConstructView(createdEntityId, prototypeView, shift = PointDto(point.x, point.y))
         return createdEntityId
@@ -83,7 +83,7 @@ class MainController: Controller() {
     //Метод для добавления порта
     fun addPort(entityId:UUID, prototype:MLPort, point:Point2D):UUID {
         val createdPortId: UUID = currentModel!!.createPort(entityId, prototype.name,
-                kind = MLPortKinds.BIDIRECTIONAL, prototypeId = if (curModel == Models.METAMDEL) null else prototype.id)
+                kind = MLPortKinds.BIDIRECTIONAL, prototypeId = if (curModel == Models.METAMODEL) null else prototype.id)
         val prototypeView:ConstructView = prototypeViews[currentView].constructViews[prototype.id]!!
         views[currentView].addConstructView(createdPortId, prototypeView, shift = PointDto(point.x, point.y))
         return createdPortId
@@ -109,7 +109,7 @@ class MainController: Controller() {
         currentModel = platform!!.createModel(null, name = name, description = description)
         currentGraph = currentModel!!.graphs[currentModel!!.root]
         views.add(platform!!.createView(currentModel!!, null, "", ""))
-        curModel = Models.METAMDEL
+        curModel = Models.METAMODEL
     }
 
     //Метод для создания модели

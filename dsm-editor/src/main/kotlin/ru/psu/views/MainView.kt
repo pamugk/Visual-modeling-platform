@@ -206,7 +206,7 @@ class MainView : View() {
     private fun askAboutSave():Boolean {
         val alert = Alert(Alert.AlertType.CONFIRMATION)
         alert.title = messages["save.title"]
-        alert.dialogPane.minHeight = Region.USE_PREF_SIZE;
+        alert.dialogPane.minHeight = Region.USE_PREF_SIZE
         alert.contentText = messages["save.text"]
         val yesButton = ButtonType(messages["dialog.yes"], ButtonBar.ButtonData.YES)
         val noButton = ButtonType(messages["dialog.no"], ButtonBar.ButtonData.NO)
@@ -289,7 +289,7 @@ class MainView : View() {
             CreationOutcome.MODEL -> controller.createModel(creationDialog.name, creationDialog.description,
                         creationDialog.selectedPrototype!!)
         }
-        updateAcessibleConstructs()
+        updateAccessibleConstructs()
         changeUiState(false)
     }
 
@@ -319,7 +319,7 @@ class MainView : View() {
     fun import() {
         val selectedDirectory = directoryChooser.showDialog(this.currentWindow) ?: return
         controller.import(selectedDirectory)
-        updateAcessibleConstructs()
+        updateAccessibleConstructs()
         fillCanvas()
         changeUiState(false)
     }
@@ -352,7 +352,7 @@ class MainView : View() {
         if (openDialog.canceled)
             return
         controller.openModel(openDialog.selectedPrototype!!)
-        updateAcessibleConstructs()
+        updateAccessibleConstructs()
         fillCanvas()
         changeUiState(false)
     }
@@ -388,15 +388,15 @@ class MainView : View() {
 
     //Вспомогательный метод для отображения информационного окна
     private fun showInfoDialog(type:Alert.AlertType, title:String, text:String) {
-        val alert = Alert(type); alert.headerText = null; alert.graphic = null;
+        val alert = Alert(type); alert.headerText = null; alert.graphic = null
         alert.title = title; alert.contentText = text
-        alert.dialogPane.minHeight = Region.USE_PREF_SIZE;
+        alert.dialogPane.minHeight = Region.USE_PREF_SIZE
         alert.showAndWait()
     }
 
     //Метод для обновления палитры конструкций
     //В соответствии с выбранным графом
-    private fun updateAcessibleConstructs() {
+    private fun updateAccessibleConstructs() {
         val currentGraph = controller.currentPrototypeGraph!!
         currentGraph.entities.forEach {
             val entityPrototype:MLEntity = controller.prototype!!.constructs[it] as MLEntity

@@ -117,7 +117,7 @@ class ModelRepository(pathToRepository:String, val transferSystem: ModelTransfer
     }
 
     //Метод для сохранения графического представления в репозитории (добавления/сохранения изменений)
-    fun saveView(view:View): Boolean {
+    private fun saveView(view:View): Boolean {
         val result = transferSystem.exporter.serializeViewToText(view) ?: return false
         transaction {
             //Если модели ещё нет в репозитории, добавляем, иначе обновляем

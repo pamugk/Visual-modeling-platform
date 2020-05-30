@@ -1,7 +1,6 @@
 package ru.psu.relations
 
 import ru.psu.attributes.MLAttribute
-import ru.psu.constraints.MLConstraint
 import ru.psu.constructs.MLConstruct
 import java.util.*
 import kotlin.collections.ArrayList
@@ -16,8 +15,7 @@ class MLRelation(
         var type:MLRelTypes, //Тип отношения
         maxCount:Int, //Максимальное число экземпляров
         var multiplicity:MLMultiplicity, //Множественность отношения
-        val ports:MutableList<UUID> //Id связываемых портов
+        val ports:MutableSet<UUID> //Id связываемых портов
 ): MLConstruct(parentId, id, name, prototypeId, innerStructure, maxCount) {
     val attributes:MutableList<MLAttribute> = ArrayList() //Атрибуты отношения
-    val constraints:MutableList<MLConstraint> = ArrayList() //Ограничения на отношение
 }
