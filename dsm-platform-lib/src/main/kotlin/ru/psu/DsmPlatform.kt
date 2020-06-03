@@ -30,17 +30,6 @@ private val defaultAssociationUUID:UUID = UUID.nameUUIDFromBytes("uuid://Associa
 private val defaultInheritanceUUID:UUID = UUID.nameUUIDFromBytes("uuid://Inheritance".toByteArray(Charsets.UTF_8))
 private val defaultPortUUID:UUID = UUID.nameUUIDFromBytes("uuid://Port".toByteArray(Charsets.UTF_8))
 
-//Метод для создания ассоциативной связи
-fun Model.createAssociation(graphId:UUID, name: String, ports:List<UUID>, id:UUID = UUID.randomUUID(),
-                            prototypeId: UUID? = null, maxCount:Int = -1,
-                            multiplicity:MLMultiplicity = MLMultiplicity(-1, -1)):UUID {
-    val associationRelation = MLRelation(graphId, id, name, prototypeId, null,
-            MLRelTypes.ASSOCIATION, maxCount, multiplicity, HashSet(ports))
-    this.graphs[graphId]!!.relations.add(id)
-    this.constructs[id] = associationRelation
-    return id
-}
-
 //Метод для создания сущности
 fun Model.createEntity(graphId:UUID, name: String, id:UUID = UUID.randomUUID(), prototype: MLEntity? = null,
                        maxCount:Int = -1):UUID {
@@ -49,19 +38,8 @@ fun Model.createEntity(graphId:UUID, name: String, id:UUID = UUID.randomUUID(), 
         entity.attributes.add(MLAttribute(it.type, it.name, it.defaultValue, it.defaultValue, it.description))
     }
     this.constructs[entity.id] = entity
-    this.graphs[graphId]?.entities?.add(entity.id)
+    this.graphs[graphId]!!.entities.add(entity.id)
     return entity.id
-}
-
-//Метод для создания связи наследования
-fun Model.createInheritance(graphId:UUID, name: String, ports:List<UUID>, id:UUID = UUID.randomUUID(),
-                            prototypeId: UUID? = null, maxCount:Int = -1,
-                            multiplicity:MLMultiplicity = MLMultiplicity(-1, -1)):UUID {
-    val inheritanceRelation = MLRelation(graphId, id, name, prototypeId,
-            null, MLRelTypes.ASSOCIATION, -1, multiplicity, HashSet(ports))
-    this.graphs[graphId]!!.relations.add(id)
-    this.constructs[id] = inheritanceRelation
-    return id
 }
 
 //Метод для создания порта
@@ -73,6 +51,17 @@ fun Model.createPort(entityId:UUID, name:String, kind:MLPortKinds, id:UUID = UUI
     this.graphs[entity.parentId]!!.ports.add(port.id)
     this.constructs[port.id] = port
     return port.id
+}
+
+//Метод для создания связи
+fun Model.createRelation(graphId:UUID, name: String, type:MLRelTypes, ports:List<UUID>, id:UUID = UUID.randomUUID(),
+                         prototypeId: UUID? = null, maxCount:Int = -1,
+                         multiplicity:MLMultiplicity = MLMultiplicity(1, 1)):UUID {
+    val relation = MLRelation(graphId, id, name, prototypeId, null, type,
+            if (type == MLRelTypes.INHERITANCE && id != defaultInheritanceUUID) 0 else maxCount, multiplicity, HashSet(ports))
+    this.graphs[graphId]!!.relations.add(id)
+    this.constructs[id] = relation
+    return id
 }
 
 //Метод для создания граф.представления конструкции
@@ -99,7 +88,21 @@ fun View.addConstructView(constructId:UUID, prototypeView:ConstructView, id:UUID
     constructView.backColor = prototypeView.backColor.copy()
     constructView.content = prototypeView.content
     constructView.font = prototypeView.font?.copy()
-    constructView.shape = prototypeView.shape!!.basic()
+    constructView.shape = prototypeView.shape!!.basic().move(shift)
+    constructView.stroke = prototypeView.stroke?.copy()
+    constructView.strokeColor = prototypeView.strokeColor.copy()
+    this.constructViews[constructId] = constructView
+    return id
+}
+
+fun View.addRelationView(constructId:UUID, prototypeView:ConstructView, ports: List<UUID>, id:UUID = UUID.randomUUID()):UUID {
+    val view = this
+    val positions = ports.map { view.constructViews[it]!!.position }
+    val constructView = ConstructView(id, constructId, positions[0])
+    constructView.backColor = prototypeView.backColor.copy()
+    constructView.content = prototypeView.content
+    constructView.font = prototypeView.font?.copy()
+    constructView.shape = LineDto(positions[0].copy(), positions[1].copy())
     constructView.stroke = prototypeView.stroke?.copy()
     constructView.strokeColor = prototypeView.strokeColor.copy()
     this.constructViews[constructId] = constructView
@@ -136,10 +139,10 @@ class DsmPlatform(
         metalanguage.createEntity(defaultUUID, messages.getString("default.entity.name"), defaultEntityUUID)
         metalanguage.createPort(defaultEntityUUID, messages.getString("default.port.name"),
                 MLPortKinds.BIDIRECTIONAL, id = defaultPortUUID, maxCount = -1)
-        metalanguage.createAssociation(defaultUUID, messages.getString("default.association.name"),
-                listOf(defaultPortUUID), defaultAssociationUUID)
-        metalanguage.createInheritance(defaultUUID, messages.getString("default.inheritance.name"),
-                listOf(defaultPortUUID), defaultInheritanceUUID)
+        metalanguage.createRelation(defaultUUID, messages.getString("default.association.name"),
+                MLRelTypes.ASSOCIATION, listOf(defaultPortUUID), defaultAssociationUUID)
+        metalanguage.createRelation(defaultUUID, messages.getString("default.inheritance.name"),
+                MLRelTypes.INHERITANCE, listOf(defaultPortUUID), defaultInheritanceUUID)
         return metalanguage
     }
 

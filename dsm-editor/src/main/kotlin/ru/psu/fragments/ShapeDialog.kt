@@ -107,7 +107,7 @@ class ShapeDialog:Fragment() {
             }
             is RectangleDto -> {
                 widthSpinner.valueFactory.value = shape.width
-                heightSpinner.valueFactory.value = shape.width
+                heightSpinner.valueFactory.value = shape.height
                 arcWidthSpinner.valueFactory.value = shape.arcWidth
                 arcHeightSpinner.valueFactory.value = shape.arcHeight
                 shapesBox.value = Shapes.Rectangle

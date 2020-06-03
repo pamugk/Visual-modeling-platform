@@ -20,7 +20,7 @@ import tornadofx.*
 fun constructShape(view:ConstructView):Shape {
     if (view.shape == null)
         return Circle()
-    val shape:Shape = view.shape!!.move(view.position).transform()
+    val shape:Shape = view.shape!!.transform()
     shape.fill = view.backColor.transform()
     shape.stroke = view.strokeColor.transform()
     if (view.stroke == null)

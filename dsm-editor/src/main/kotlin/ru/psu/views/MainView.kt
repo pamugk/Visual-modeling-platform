@@ -30,6 +30,7 @@ import ru.psu.repository.ModelTransferSystem
 import ru.psu.repository.transferImplementations.xml.XmlModelExporter
 import ru.psu.repository.transferImplementations.xml.XmlModelImporter
 import ru.psu.transformer.ModelTransformer
+import ru.psu.transformer.move
 import ru.psu.utils.clear
 import ru.psu.utils.constructShape
 import ru.psu.utils.transform
@@ -39,6 +40,7 @@ import ru.psu.view.auxiliaries.shapes.ShapeDto
 import tornadofx.*
 import java.io.File
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 //Контроллер редактора
@@ -51,8 +53,10 @@ class MainView : View() {
     private var listConstruct:SelectedConstruct = SelectedConstruct.NOTHING
     private var paneConstruct: SelectedConstruct = SelectedConstruct.NOTHING
     private var paneConstructId:UUID? = null
-    private val paneConstructShapes:MutableMap<UUID, Shape> = HashMap()
-    private var paneConstructView: ConstructView? = null
+    private val paneConstructShapes:MutableMap<UUID, Shape> = mutableMapOf()
+    private var paneConstructView:ConstructView? = null
+
+    private val clickedPorts:MutableList<UUID> = mutableListOf()
 
     //Список графических элементов окна,
     //с которыми есть необходимость взаимодействовать напрямую
@@ -146,7 +150,7 @@ class MainView : View() {
                 constructBackColorPicker.value = oldColor
             else {
                 view.backColor = newColor.transform()
-                paneConstructShapes[paneConstructId]!!.fill = newColor
+                paneConstructShapes[paneConstructId!!]!!.fill = newColor
             }
         }
         constructStrokeColorPicker.valueProperty().addListener {
@@ -157,7 +161,7 @@ class MainView : View() {
                 constructStrokeColorPicker.value = oldColor
             else {
                 view.strokeColor = newColor.transform()
-                paneConstructShapes[paneConstructId]!!.stroke = newColor
+                paneConstructShapes[paneConstructId!!]!!.stroke = newColor
             }
         }
         currentStage?.minWidth = 640.0
@@ -167,11 +171,6 @@ class MainView : View() {
     //Метод для добавления отображения сущности на полотно
     private fun addEntity(id:UUID) {
         val shape:Shape = constructShape(controller.getConstructView(id)!!)
-        addEntityClick(id, shape)
-        modelPane.children.add(shape)
-    }
-
-    private fun addEntityClick(id:UUID, shape:Shape) {
         shape.setOnMouseClicked { mouseEvent: MouseEvent ->
             if (mouseEvent.button != MouseButton.PRIMARY)
                 return@setOnMouseClicked
@@ -188,10 +187,40 @@ class MainView : View() {
                 addPort(portId)
             }
         }
+        modelPane.children.add(shape)
+        paneConstructShapes[id] = shape
     }
 
     //Метод для добавления отображения порта на полотно
     private fun addPort(id:UUID) {
+        val shape:Shape = constructShape(controller.getConstructView(id)!!)
+        shape.setOnMouseClicked { mouseEvent: MouseEvent ->
+            if (mouseEvent.button != MouseButton.PRIMARY) {
+                return@setOnMouseClicked
+            }
+            Platform.runLater {
+                selectConstruct(SelectedConstruct.NOTHING)
+                initializeConstructInfo()
+                selectConstruct(SelectedConstruct.PORT, id, shape)
+                initializeConstructInfo()
+            }
+            if (listConstruct == SelectedConstruct.RELATION) {
+                if (!clickedPorts.contains(id)) clickedPorts.add(id)
+                if (clickedPorts.size == 2) {
+                    val relId: UUID = controller.addRelation(relationList.selectedItem!!, clickedPorts)
+                    relationList.selectionModel.clearSelection()
+                    listConstruct = SelectedConstruct.NOTHING
+                    clickedPorts.clear()
+                    addRelation(relId)
+                }
+            }
+        }
+        modelPane.children.add(shape)
+        paneConstructShapes[id] = shape
+    }
+
+    //Метод для отображения отношения на полотно
+    private fun addRelation(id:UUID) {
         val shape:Shape = constructShape(controller.getConstructView(id)!!)
         shape.setOnMouseClicked { mouseEvent: MouseEvent ->
             if (mouseEvent.button != MouseButton.PRIMARY)
@@ -199,16 +228,12 @@ class MainView : View() {
             Platform.runLater {
                 selectConstruct(SelectedConstruct.NOTHING)
                 initializeConstructInfo()
-                selectConstruct(SelectedConstruct.PORT, id, shape)
+                selectConstruct(SelectedConstruct.RELATION, id, shape)
                 initializeConstructInfo()
             }
         }
         modelPane.children.add(shape)
-    }
-
-    //TODO: метод для отображения отношения на полотно
-    private fun addRelation(id:UUID) {
-
+        paneConstructShapes[id] = shape
     }
 
     //Метод для отображения диалога касательно того, необходимо ли сохранять изменения в модели
@@ -248,12 +273,9 @@ class MainView : View() {
         dialog.openModal(modality = Modality.APPLICATION_MODAL, owner = this.currentWindow,
                 block = true, resizable = false)?.showAndWait()
         if (dialog.save) {
-            paneConstructView!!.shape = dialog.shape
-            val shape:Shape = constructShape(paneConstructView!!)
-            addEntityClick(paneConstructId!!, shape)
+            paneConstructView!!.shape = dialog.shape!!.move(paneConstructView!!.position)
             modelPane.children.remove(paneConstructShapes[paneConstructId])
-            paneConstructShapes[paneConstructId!!] = shape
-            modelPane.children.add(shape)
+            addEntity(paneConstructId!!)
         }
     }
 

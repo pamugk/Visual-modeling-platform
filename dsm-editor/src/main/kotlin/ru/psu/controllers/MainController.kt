@@ -1,16 +1,15 @@
 package ru.psu.controllers
 
 import javafx.geometry.Point2D
-import ru.psu.DsmPlatform
-import ru.psu.addConstructView
-import ru.psu.createEntity
+import ru.psu.*
 import ru.psu.constructs.MLConstruct
-import ru.psu.createPort
 import ru.psu.entities.MLEntity
 import ru.psu.graphs.MLGraph
 import ru.psu.model.Model
 import ru.psu.ports.MLPort
 import ru.psu.ports.MLPortKinds
+import ru.psu.relations.MLRelTypes
+import ru.psu.relations.MLRelation
 import ru.psu.repository.entries.ModelEntry
 import ru.psu.repository.entries.ViewEntry
 import ru.psu.view.ConstructView
@@ -88,6 +87,14 @@ class MainController: Controller() {
         val prototypeView:ConstructView = prototypeViews[currentView].constructViews[prototype.id]!!
         views[currentView].addConstructView(createdPortId, prototypeView, shift = PointDto(point.x, point.y))
         return createdPortId
+    }
+
+    fun addRelation(prototype:MLRelation, ports: List<UUID>):UUID {
+        val createdRelId: UUID = currentModel!!.createRelation(currentGraph!!.id, prototype.name, prototype.type,
+                ports, prototypeId = if (curModel == Models.METAMODEL) null else prototype.id)
+        val prototypeView:ConstructView = prototypeViews[currentView].constructViews[prototype.id]!!
+        views[currentView].addRelationView(createdRelId, prototypeView, ports)
+        return createdRelId
     }
 
     //Метод для закрытия модели (т.е. сброса состояния "Модели"
