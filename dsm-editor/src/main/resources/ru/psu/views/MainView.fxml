@@ -103,6 +103,7 @@
                     <Label text="%constructInfo.view.font" />
                     <Label fx:id="constructFont" disable="true" />
                     <Label text="%constructInfo.view.shape" />
+                  <Button mnemonicParsing="false" onAction="#changeShape" text="%changeShape" />
                     <Label text="%constructInfo.view.stroke" />
                     <Label text="%constructInfo.view.strokeColor" />
                     <ColorPicker fx:id="constructStrokeColorPicker" />

@@ -29,7 +29,12 @@
     <dependencies>
         <dependency>
             <groupId>ru.psu</groupId>
-            <artifactId>model-lib</artifactId>
+            <artifactId>metalanguage-lib</artifactId>
+            <version>0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>ru.psu</groupId>
+            <artifactId>graphic-view-lib</artifactId>
             <version>0.1</version>
         </dependency>
         <dependency>

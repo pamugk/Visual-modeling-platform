@@ -20,6 +20,7 @@ import ru.psu.factories.ConstructItemCellFactory
 import ru.psu.fragments.CreationDialog
 import ru.psu.fragments.CreationOutcome
 import ru.psu.fragments.OpenDialog
+import ru.psu.fragments.ShapeDialog
 import ru.psu.generator.DslDefGenerator
 import ru.psu.graphs.MLGraph
 import ru.psu.ports.MLPort
@@ -33,9 +34,12 @@ import ru.psu.utils.clear
 import ru.psu.utils.constructShape
 import ru.psu.utils.transform
 import ru.psu.validator.ModelValidator
+import ru.psu.view.ConstructView
+import ru.psu.view.auxiliaries.shapes.ShapeDto
 import tornadofx.*
 import java.io.File
 import java.util.*
+import kotlin.collections.HashMap
 
 //Контроллер редактора
 class MainView : View() {
@@ -47,7 +51,8 @@ class MainView : View() {
     private var listConstruct:SelectedConstruct = SelectedConstruct.NOTHING
     private var paneConstruct: SelectedConstruct = SelectedConstruct.NOTHING
     private var paneConstructId:UUID? = null
-    private var paneConstructShape:Shape? = null
+    private val paneConstructShapes:MutableMap<UUID, Shape> = HashMap()
+    private var paneConstructView: ConstructView? = null
 
     //Список графических элементов окна,
     //с которыми есть необходимость взаимодействовать напрямую
@@ -141,7 +146,7 @@ class MainView : View() {
                 constructBackColorPicker.value = oldColor
             else {
                 view.backColor = newColor.transform()
-                paneConstructShape!!.fill = newColor
+                paneConstructShapes[paneConstructId]!!.fill = newColor
             }
         }
         constructStrokeColorPicker.valueProperty().addListener {
@@ -152,7 +157,7 @@ class MainView : View() {
                 constructStrokeColorPicker.value = oldColor
             else {
                 view.strokeColor = newColor.transform()
-                paneConstructShape!!.stroke = newColor
+                paneConstructShapes[paneConstructId]!!.stroke = newColor
             }
         }
         currentStage?.minWidth = 640.0
@@ -162,6 +167,11 @@ class MainView : View() {
     //Метод для добавления отображения сущности на полотно
     private fun addEntity(id:UUID) {
         val shape:Shape = constructShape(controller.getConstructView(id)!!)
+        addEntityClick(id, shape)
+        modelPane.children.add(shape)
+    }
+
+    private fun addEntityClick(id:UUID, shape:Shape) {
         shape.setOnMouseClicked { mouseEvent: MouseEvent ->
             if (mouseEvent.button != MouseButton.PRIMARY)
                 return@setOnMouseClicked
@@ -178,7 +188,6 @@ class MainView : View() {
                 addPort(portId)
             }
         }
-        modelPane.children.add(shape)
     }
 
     //Метод для добавления отображения порта на полотно
@@ -231,7 +240,21 @@ class MainView : View() {
         entityList.selectionModel.clearSelection()
         listConstruct = SelectedConstruct.NOTHING
         addEntity(id)
+    }
 
+    fun changeShape() {
+        val dialog = ShapeDialog()
+        dialog.updateShapeProperties(paneConstructView!!.shape!!)
+        dialog.openModal(modality = Modality.APPLICATION_MODAL, owner = this.currentWindow,
+                block = true, resizable = false)?.showAndWait()
+        if (dialog.save) {
+            paneConstructView!!.shape = dialog.shape
+            val shape:Shape = constructShape(paneConstructView!!)
+            addEntityClick(paneConstructId!!, shape)
+            modelPane.children.remove(paneConstructShapes[paneConstructId])
+            paneConstructShapes[paneConstructId!!] = shape
+            modelPane.children.add(shape)
+        }
     }
 
     //Метод для изменения активности интерфейса
@@ -375,7 +398,7 @@ class MainView : View() {
     private fun selectConstruct(construct: SelectedConstruct, id:UUID? = null, shape:Shape? = null) {
         paneConstruct = construct
         paneConstructId = id
-        paneConstructShape = shape
+        paneConstructView = if (id == null) null else controller.getConstructView(id)
     }
 
     //Обработчик нажатия на кнопку "О программе"

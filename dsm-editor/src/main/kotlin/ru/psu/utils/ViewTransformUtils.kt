@@ -6,6 +6,7 @@ import javafx.scene.text.Font
 import javafx.scene.text.FontPosture
 import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
+import ru.psu.transformer.move
 import ru.psu.view.ConstructView
 import ru.psu.view.auxiliaries.ColorDto
 import ru.psu.view.auxiliaries.FontDto
@@ -19,7 +20,7 @@ import tornadofx.*
 fun constructShape(view:ConstructView):Shape {
     if (view.shape == null)
         return Circle()
-    val shape:Shape = view.shape!!.transform()
+    val shape:Shape = view.shape!!.move(view.position).transform()
     shape.fill = view.backColor.transform()
     shape.stroke = view.strokeColor.transform()
     if (view.stroke == null)

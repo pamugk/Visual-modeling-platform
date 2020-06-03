@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="10.0" stylesheets="@../styles/ShapeDialog.css" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+    <padding>
+        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+    </padding>
+    <HBox spacing="10.0">
+        <Label alignment="CENTER_RIGHT" maxHeight="1.7976931348623157E308" text="%label.shape" />
+        <ComboBox fx:id="shapesBox" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+    </HBox>
+    <Pane fx:id="shapePane" prefHeight="200.0" />
+    <TabPane styleClass="props-tab-pane" tabClosingPolicy="UNAVAILABLE">
+        <Tab fx:id="circleTab" closable="false" text="Circle">
+            <VBox minHeight="0.0" minWidth="0.0" spacing="10.0">
+                <Label maxWidth="1.7976931348623157E308" text="%label.radius" />
+                <Spinner fx:id="radiusSpinner" max="100.0" maxWidth="1.7976931348623157E308" min="1.0" />
+            </VBox>
+        </Tab>
+        <Tab fx:id="ellipseTab" closable="false" text="Ellipse">
+            <VBox minHeight="0.0" minWidth="0.0" spacing="10.0">
+                <Label maxWidth="1.7976931348623157E308" text="%label.radiusX" />
+                <Spinner fx:id="radiusXSpinner" max="100.0" maxWidth="1.7976931348623157E308" min="1.0" />
+                <Label maxWidth="1.7976931348623157E308" text="%label.radiusY" />
+                <Spinner fx:id="radiusYSpinner"  max="100.0" maxWidth="1.7976931348623157E308" min="1.0" />
+            </VBox>
+        </Tab>
+        <Tab fx:id="rectangleTab" closable="false" text="Rectangle">
+            <GridPane hgap="10.0" maxHeight="-Infinity" vgap="10.0">
+                <VBox>
+                    <Label text="%label.width" />
+                    <Spinner fx:id="widthSpinner" max="100.0" min="1.0" />
+                </VBox>
+                <VBox GridPane.columnIndex="1">
+                    <Label maxWidth="1.7976931348623157E308" text="%label.height" />
+                    <Spinner fx:id="heightSpinner" max="100.0" maxWidth="1.7976931348623157E308" min="1.0" />
+                </VBox>
+                <VBox GridPane.rowIndex="1">
+                    <Label text="%label.arcwidth" />
+                    <Spinner fx:id="arcWidthSpinner"  max="100.0" min="0.0" />
+                </VBox>
+                <VBox GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <Label maxWidth="1.7976931348623157E308" text="%label.archeight" />
+                    <Spinner fx:id="arcHeightSpinner" max="100.0" maxWidth="1.7976931348623157E308" min="0.0" />
+                </VBox>
+            <columnConstraints>
+               <ColumnConstraints />
+               <ColumnConstraints minWidth="10.0" />
+            </columnConstraints>
+            <rowConstraints>
+               <RowConstraints />
+               <RowConstraints minHeight="10.0" />
+            </rowConstraints>
+            </GridPane>
+        </Tab>
+      <padding>
+         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+      </padding>
+    </TabPane>
+    <HBox alignment="CENTER_RIGHT" spacing="20.0">
+        <Button fx:id="okBtn" mnemonicParsing="false" text="%key.ok" onAction="#ok"/>
+        <Button fx:id="cancelBtn" mnemonicParsing="false" text="%key.cancel" onAction="#cancel" />
+    </HBox>
+</VBox>

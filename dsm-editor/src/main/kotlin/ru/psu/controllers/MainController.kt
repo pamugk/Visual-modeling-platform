@@ -16,6 +16,7 @@ import ru.psu.repository.entries.ViewEntry
 import ru.psu.view.ConstructView
 import ru.psu.view.View
 import ru.psu.view.auxiliaries.shapes.PointDto
+import ru.psu.view.auxiliaries.shapes.ShapeDto
 import tornadofx.*
 import java.io.File
 import java.util.*
@@ -72,7 +73,7 @@ class MainController: Controller() {
 
     //Метод для добавления сущности в модель
     //point - точка, где необходимо разместить представление модели
-    fun addEntity(prototype:MLEntity, point:Point2D):UUID {
+    fun addEntity(prototype:MLEntity, point:Point2D, shape:ShapeDto? = null):UUID {
         val createdEntityId: UUID = currentModel!!.createEntity(currentGraph!!.id, prototype.name,
                 prototype = if (curModel == Models.METAMODEL) null else prototype)
         val prototypeView:ConstructView = prototypeViews[currentView].constructViews[prototype.id]!!

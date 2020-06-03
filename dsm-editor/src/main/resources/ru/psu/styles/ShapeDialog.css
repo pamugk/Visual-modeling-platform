@@ -1,0 +1,6 @@
+.props-tab-pane {
+    -fx-tab-max-height: 0 ;
+}
+.props-tab-pane .tab-header-area {
+    visibility: hidden ;
+}

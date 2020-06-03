@@ -73,7 +73,7 @@ class ModelRepository(pathToRepository:String, val transferSystem: ModelTransfer
     fun loadModel(id: UUID):Model?{
         val result:ResultRow? = transaction {
             Models.slice(Models.data)
-                    .select { (Models.id eq id) and (Models.dataType eq transferSystem.importer.fileExtension) }
+                    .select { (Models.id eq id) and (Models.dataType eq transferSystem.importer.format) }
                     .firstOrNull()
         }
         return if (result == null) null else transferSystem.importer.deserializeFromText(result[Models.data])
@@ -82,7 +82,7 @@ class ModelRepository(pathToRepository:String, val transferSystem: ModelTransfer
     //Метод для получения графических представлений модели
     fun loadModelViews(id: UUID):List<View> = transaction {
         Views.slice(Views.data)
-                .select { (Views.modelId eq id) and (Views.dataType eq transferSystem.importer.fileExtension) }
+                .select { (Views.modelId eq id) and (Views.dataType eq transferSystem.importer.format) }
                 .mapNotNull { row -> transferSystem.importer.deserializeViewFromText(row[Views.data]) }
     }
 
@@ -90,7 +90,7 @@ class ModelRepository(pathToRepository:String, val transferSystem: ModelTransfer
     fun loadView(id: UUID):View?{
         val result:ResultRow? = transaction {
             Views.slice(Models.data)
-                    .select { (Views.id eq id) and (Views.dataType eq transferSystem.importer.fileExtension) }
+                    .select { (Views.id eq id) and (Views.dataType eq transferSystem.importer.format) }
                     .firstOrNull()
         }
         return if (result == null) null else transferSystem.importer.deserializeViewFromText(result[Views.data])
@@ -105,12 +105,12 @@ class ModelRepository(pathToRepository:String, val transferSystem: ModelTransfer
                 Models.insert {
                     it[id] = model.id; it[prototypeId] = model.prototypeId
                     it[name] = model.name; it[description] = model.description
-                    it[dataType] = transferSystem.exporter.fileExtension; it[data] = result
+                    it[dataType] = transferSystem.exporter.format; it[data] = result
                 }
             else
                 Models.update({Models.id eq model.id}) {
                     it[name] = model.name; it[description] = model.description
-                    it[dataType] = transferSystem.exporter.fileExtension; it[data] = result
+                    it[dataType] = transferSystem.exporter.format; it[data] = result
                 }
         }
         return true
@@ -118,19 +118,19 @@ class ModelRepository(pathToRepository:String, val transferSystem: ModelTransfer
 
     //Метод для сохранения графического представления в репозитории (добавления/сохранения изменений)
     private fun saveView(view:View): Boolean {
-        val result = transferSystem.exporter.serializeViewToText(view) ?: return false
+        val result = transferSystem.exporter.serializeToText(view) ?: return false
         transaction {
             //Если модели ещё нет в репозитории, добавляем, иначе обновляем
             if (Views.slice(Views.id).select { Views.id eq view.id }.firstOrNull() == null)
                 Views.insert {
                     it[id] = view.id; it[prototypeId] = view.prototypeId; it[modelId] = view.modelId
                     it[name] = view.name; it[description] = view.description
-                    it[dataType] = transferSystem.exporter.fileExtension; it[data] = result
+                    it[dataType] = transferSystem.exporter.format; it[data] = result
                 }
             else
                 Views.update({Views.id eq view.id}) {
                     it[name] = view.name; it[description] = view.description
-                    it[dataType] = transferSystem.exporter.fileExtension; it[data] = result
+                    it[dataType] = transferSystem.exporter.format; it[data] = result
                 }
         }
         return true

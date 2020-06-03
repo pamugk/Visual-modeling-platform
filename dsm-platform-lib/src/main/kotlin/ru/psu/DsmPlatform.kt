@@ -81,7 +81,7 @@ fun View.addConstructView(id:UUID = UUID.randomUUID(), constructId:UUID, shape:S
                           font: FontDto = FontDto("Arial", 12.0),
                           stroke: StrokeDto = StrokeDto(1.0),
                           strokeColor: ColorDto = ColorDto(0.0, 0.0, 0.0)):UUID {
-    val constructView = ConstructView(id, constructId)
+    val constructView = ConstructView(id, constructId, PointDto())
     constructView.backColor = backColor
     constructView.content = content
     constructView.font = font
@@ -95,11 +95,11 @@ fun View.addConstructView(id:UUID = UUID.randomUUID(), constructId:UUID, shape:S
 //Метод для создания граф.представления конструкции по прототипу
 fun View.addConstructView(constructId:UUID, prototypeView:ConstructView, id:UUID = UUID.randomUUID(),
                           shift:PointDto):UUID {
-    val constructView = ConstructView(id, constructId)
+    val constructView = ConstructView(id, constructId, shift)
     constructView.backColor = prototypeView.backColor.copy()
     constructView.content = prototypeView.content
     constructView.font = prototypeView.font?.copy()
-    constructView.shape = prototypeView.shape!!.basic().move(shift)
+    constructView.shape = prototypeView.shape!!.basic()
     constructView.stroke = prototypeView.stroke?.copy()
     constructView.strokeColor = prototypeView.strokeColor.copy()
     this.constructViews[constructId] = constructView
