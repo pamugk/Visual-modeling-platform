@@ -1,0 +1,4 @@
+.shape:focused {
+    -fx-border-width: 100;
+    -fx-border-color: blue;
+}

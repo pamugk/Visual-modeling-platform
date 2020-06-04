@@ -172,6 +172,7 @@ class MainView : View() {
     private fun addEntity(id:UUID) {
         val shape:Shape = constructShape(controller.getConstructView(id)!!)
         shape.setOnMouseClicked { mouseEvent: MouseEvent ->
+            clickedPorts.clear()
             if (mouseEvent.button != MouseButton.PRIMARY)
                 return@setOnMouseClicked
             Platform.runLater {
@@ -186,6 +187,7 @@ class MainView : View() {
                 listConstruct = SelectedConstruct.NOTHING
                 addPort(portId)
             }
+            mouseEvent.consume()
         }
         modelPane.children.add(shape)
         paneConstructShapes[id] = shape
@@ -214,6 +216,7 @@ class MainView : View() {
                     addRelation(relId)
                 }
             }
+            mouseEvent.consume()
         }
         modelPane.children.add(shape)
         paneConstructShapes[id] = shape
@@ -223,6 +226,7 @@ class MainView : View() {
     private fun addRelation(id:UUID) {
         val shape:Shape = constructShape(controller.getConstructView(id)!!)
         shape.setOnMouseClicked { mouseEvent: MouseEvent ->
+            clickedPorts.clear()
             if (mouseEvent.button != MouseButton.PRIMARY)
                 return@setOnMouseClicked
             Platform.runLater {
@@ -231,6 +235,7 @@ class MainView : View() {
                 selectConstruct(SelectedConstruct.RELATION, id, shape)
                 initializeConstructInfo()
             }
+            mouseEvent.consume()
         }
         modelPane.children.add(shape)
         paneConstructShapes[id] = shape
@@ -256,6 +261,7 @@ class MainView : View() {
 
     //Обработчик события нажатия мыши на полотно
     fun canvasClicked(event:MouseEvent) {
+        clickedPorts.clear()
         if (event.button != MouseButton.PRIMARY || listConstruct != SelectedConstruct.ENTITY) {
             selectConstruct(SelectedConstruct.NOTHING)
             initializeConstructInfo()
@@ -419,8 +425,8 @@ class MainView : View() {
     //Метод для обновления информации о выбранной на полотне конструкции
     private fun selectConstruct(construct: SelectedConstruct, id:UUID? = null, shape:Shape? = null) {
         paneConstruct = construct
-        paneConstructId = id
         paneConstructView = if (id == null) null else controller.getConstructView(id)
+        paneConstructId = id
     }
 
     //Обработчик нажатия на кнопку "О программе"
