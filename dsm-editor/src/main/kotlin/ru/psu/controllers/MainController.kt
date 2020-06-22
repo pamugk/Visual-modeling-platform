@@ -76,7 +76,8 @@ class MainController: Controller() {
         val createdEntityId: UUID = currentModel!!.createEntity(currentGraph!!.id, prototype.name,
                 prototype = if (curModel == Models.METAMODEL) null else prototype)
         val prototypeView:ConstructView = prototypeViews[currentView].constructViews[prototype.id]!!
-        views[currentView].addConstructView(createdEntityId, prototypeView, shift = PointDto(point.x, point.y))
+        views[currentView].addConstructView(createdEntityId, prototypeView, shift = PointDto(point.x, point.y),
+                text=prototype.name)
         return createdEntityId
     }
 

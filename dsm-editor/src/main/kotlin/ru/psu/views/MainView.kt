@@ -10,9 +10,11 @@ import javafx.scene.layout.BorderPane
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Region
 import javafx.scene.shape.Shape
+import javafx.scene.text.Text
 import javafx.stage.DirectoryChooser
 import javafx.stage.Modality
 import ru.psu.DsmPlatform
+import ru.psu.constructs.MLConstruct
 import ru.psu.controllers.MainController
 import ru.psu.controllers.SaveOutcome
 import ru.psu.entities.MLEntity
@@ -33,6 +35,7 @@ import ru.psu.transformer.ModelTransformer
 import ru.psu.transformer.move
 import ru.psu.utils.clear
 import ru.psu.utils.constructShape
+import ru.psu.utils.constructText
 import ru.psu.utils.transform
 import ru.psu.validator.ModelValidator
 import ru.psu.view.ConstructView
@@ -54,6 +57,7 @@ class MainView : View() {
     private var paneConstruct: SelectedConstruct = SelectedConstruct.NOTHING
     private var paneConstructId:UUID? = null
     private val paneConstructShapes:MutableMap<UUID, Shape> = mutableMapOf()
+    private val paneConstructTexts:MutableMap<UUID, Text> = mutableMapOf()
     private var paneConstructView:ConstructView? = null
 
     private val clickedPorts:MutableList<UUID> = mutableListOf()
@@ -139,8 +143,17 @@ class MainView : View() {
             val construct = controller.currentModel?.constructs?.get(paneConstructId!!)
             if (new == null || new.isEmpty())
                 constructNameField.text = old
-            else
+            else {
                 construct!!.name = new
+                if (construct is MLEntity) {
+                    val view:ConstructView = controller.getConstructView(construct.id)!!
+                    view.content = new
+                    modelPane.children.remove(paneConstructTexts[construct.id])
+                    val newText = constructText(view)
+                    paneConstructTexts[construct.id] = newText
+                    modelPane.children.add(newText)
+                }
+            }
         }
         constructBackColorPicker.valueProperty().addListener {
             _, oldColor, newColor ->
@@ -170,7 +183,9 @@ class MainView : View() {
 
     //Метод для добавления отображения сущности на полотно
     private fun addEntity(id:UUID) {
-        val shape:Shape = constructShape(controller.getConstructView(id)!!)
+        val view = controller.getConstructView(id)!!
+        val shape:Shape = constructShape(view)
+        val text: Text = constructText(view)
         shape.setOnMouseClicked { mouseEvent: MouseEvent ->
             clickedPorts.clear()
             if (mouseEvent.button != MouseButton.PRIMARY)
@@ -189,8 +204,9 @@ class MainView : View() {
             }
             mouseEvent.consume()
         }
-        modelPane.children.add(shape)
+        modelPane.children.addAll(shape, text)
         paneConstructShapes[id] = shape
+        paneConstructTexts[id] = text
     }
 
     //Метод для добавления отображения порта на полотно

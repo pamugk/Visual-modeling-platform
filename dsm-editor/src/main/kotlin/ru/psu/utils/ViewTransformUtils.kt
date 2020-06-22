@@ -37,7 +37,10 @@ fun constructShape(view:ConstructView):Shape {
 
 //Функция для построения JavaFX-текста, сопровождающего конструкцию
 fun constructText(view:ConstructView): Text {
+    val shape = view.shape!!.transform()
     val text = Text(view.content)
+    text.x = view.position.x + (shape.layoutBounds.width - text.layoutBounds.width) / 2.0
+    text.y = view.position.y + shape.layoutBounds.height + text.layoutBounds.height
     text.font = view.font.transform()
     return text
 }
