@@ -8,7 +8,7 @@ import javafx.scene.control.ListCell
 import javafx.scene.layout.StackPane
 import ru.psu.constructs.MLConstruct
 import ru.psu.controllers.MainController
-import ru.psu.utils.drawConstruct
+import ru.psu.utils.constructShape
 import ru.psu.view.ConstructView
 import tornadofx.*
 import java.io.IOException
@@ -49,7 +49,7 @@ class ConstructItemCell<T: MLConstruct>(): ListCell<T>() {
             nameLabel.text = item.name
             val constructView: ConstructView? = controller.getPrototypeConstructView(item)
             if (constructView != null)
-                viewPane.drawConstruct(constructView)
+                viewPane.add(constructShape(constructView))
             contentDisplay = ContentDisplay.GRAPHIC_ONLY
         }
     }

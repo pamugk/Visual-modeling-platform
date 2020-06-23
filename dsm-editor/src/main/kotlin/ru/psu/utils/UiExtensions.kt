@@ -16,9 +16,3 @@ fun <T> ListView<T>.clear() {
     this.selectionModel.clearSelection()
     this.items.clear()
 }
-
-fun Pane.drawConstruct(constructView: ConstructView) {
-    if (constructView.shape == null)
-        return
-    this.children.addAll(constructShape(constructView), constructText(constructView))
-}

@@ -336,6 +336,7 @@ class MainView : View() {
         changeUiState(true)
         clearUi()
         controller.closeModel()
+        title = messages["title"]
     }
 
     //Обработчик нажатия на кнопку "Создать модель"
@@ -357,6 +358,7 @@ class MainView : View() {
             CreationOutcome.MODEL -> controller.createModel(creationDialog.name, creationDialog.description,
                         creationDialog.selectedPrototype!!)
         }
+        title = "${messages["title"]}: ${creationDialog.name}"
         updateAccessibleConstructs()
         changeUiState(false)
     }
@@ -390,6 +392,7 @@ class MainView : View() {
         updateAccessibleConstructs()
         fillCanvas()
         changeUiState(false)
+        title = "${messages["title"]}: ${controller.currentModel!!.name}"
     }
 
     //Метод для заполнения панели с информацией о конструкции
@@ -420,6 +423,7 @@ class MainView : View() {
         if (openDialog.canceled)
             return
         controller.openModel(openDialog.selectedPrototype!!)
+        title = "${messages["title"]}:${openDialog.selectedPrototype!!.name}"
         updateAccessibleConstructs()
         fillCanvas()
         changeUiState(false)
