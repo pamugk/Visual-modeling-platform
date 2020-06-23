@@ -148,7 +148,8 @@ class MainView : View() {
                 if (construct is MLEntity) {
                     val view:ConstructView = controller.getConstructView(construct.id)!!
                     view.content = new
-                    modelPane.children.remove(paneConstructTexts[construct.id])
+                    if (paneConstructTexts.containsKey(construct.id))
+                        modelPane.children.remove(paneConstructTexts[construct.id])
                     val newText = constructText(view)
                     paneConstructTexts[construct.id] = newText
                     modelPane.children.add(newText)
