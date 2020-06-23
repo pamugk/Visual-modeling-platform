@@ -184,6 +184,8 @@ class MainView : View() {
 
     //Метод для добавления отображения сущности на полотно
     private fun addEntity(id:UUID) {
+        if (paneConstructTexts.containsKey(id))
+            modelPane.children.remove(paneConstructTexts[id])
         val view = controller.getConstructView(id)!!
         val shape:Shape = constructShape(view)
         val text: Text = constructText(view)

@@ -39,8 +39,8 @@ fun constructShape(view:ConstructView):Shape {
 fun constructText(view:ConstructView): Text {
     val shape = view.shape!!.transform()
     val text = Text(view.content)
-    text.x = view.position.x + (shape.layoutBounds.width - text.layoutBounds.width) / 2.0
-    text.y = view.position.y + shape.layoutBounds.height + text.layoutBounds.height
+    text.x = shape.layoutBounds.minX + (shape.layoutBounds.width - text.layoutBounds.width) / 2.0
+    text.y = shape.layoutBounds.minY + shape.layoutBounds.height + text.layoutBounds.height
     text.font = view.font.transform()
     return text
 }
