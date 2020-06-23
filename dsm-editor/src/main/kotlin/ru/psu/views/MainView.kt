@@ -14,7 +14,6 @@ import javafx.scene.text.Text
 import javafx.stage.DirectoryChooser
 import javafx.stage.Modality
 import ru.psu.DsmPlatform
-import ru.psu.constructs.MLConstruct
 import ru.psu.controllers.MainController
 import ru.psu.controllers.SaveOutcome
 import ru.psu.entities.MLEntity
@@ -39,12 +38,9 @@ import ru.psu.utils.constructText
 import ru.psu.utils.transform
 import ru.psu.validator.ModelValidator
 import ru.psu.view.ConstructView
-import ru.psu.view.auxiliaries.shapes.ShapeDto
 import tornadofx.*
 import java.io.File
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 //Контроллер редактора
 class MainView : View() {
@@ -216,9 +212,8 @@ class MainView : View() {
     private fun addPort(id:UUID) {
         val shape:Shape = constructShape(controller.getConstructView(id)!!)
         shape.setOnMouseClicked { mouseEvent: MouseEvent ->
-            if (mouseEvent.button != MouseButton.PRIMARY) {
+            if (mouseEvent.button != MouseButton.PRIMARY)
                 return@setOnMouseClicked
-            }
             Platform.runLater {
                 selectConstruct(SelectedConstruct.NOTHING)
                 initializeConstructInfo()
@@ -300,7 +295,10 @@ class MainView : View() {
         if (dialog.save) {
             paneConstructView!!.shape = dialog.shape!!.move(paneConstructView!!.position)
             modelPane.children.remove(paneConstructShapes[paneConstructId])
-            addEntity(paneConstructId!!)
+            when (controller.currentModel!!.constructs[paneConstructId]){
+                is MLEntity -> addEntity(paneConstructId!!)
+                is MLPort -> addPort(paneConstructId!!)
+            }
         }
     }
 
